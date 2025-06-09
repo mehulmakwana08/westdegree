@@ -1,0 +1,104 @@
+<%- include('partials/header') %>
+
+<body class="absolute_header inner-page">
+    <%- include('partials/navigation') %>
+
+    <main class="site-content" id="content">
+        <!-- START: Breadcrumb Area -->
+        <section class="breadcrumb_area" data-bg-image="/assets/img/breadcrumb/breadcrumb-bg.jpg" data-bg-color="#140C1C">
+            <div class="container">
+                <div class="row">
+                    <div class="col">
+                        <div class="breadcrumb_content d-flex flex-column align-items-center">
+                            <h2 class="title wow fadeInUp" data-wow-delay=".3s">404 - Page Not Found</h2>
+                            <div class="breadcrumb_navigation wow fadeInUp" data-wow-delay=".5s">
+                                <span><a href="/">Home</a></span>
+                                <i class="far fa-long-arrow-right"></i>
+                                <span class="current-item">404</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- END: Breadcrumb Area -->
+
+        <!-- START: 404 Section -->
+        <section class="full-width tj-error-area">
+            <div class="container">
+                <div class="row justify-content-center">
+                    <div class="col-lg-8 text-center">
+                        <div class="tj-error-content">
+                            <div class="error-number">
+                                <h1>404</h1>
+                            </div>
+                            <h2 class="error-title">Oops! Page Not Found</h2>
+                            <p class="error-description">
+                                The page you are looking for might have been removed, had its name changed, 
+                                or is temporarily unavailable.
+                            </p>
+                            <div class="error-actions">
+                                <a href="/" class="btn tj-btn-primary">Go Back Home</a>
+                                <a href="/blog" class="btn tj-btn-secondary">View Blog</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- END: 404 Section -->
+    </main>
+
+    <%- include('partials/footer') %>
+
+<style>
+.tj-error-area {
+    padding: 100px 0;
+}
+
+.tj-error-content {
+    text-align: center;
+    padding: 50px 0;
+}
+
+.error-number h1 {
+    font-size: 150px;
+    font-weight: bold;
+    color: #6c5ce7;
+    margin-bottom: 30px;
+    line-height: 1;
+}
+
+.error-title {
+    font-size: 36px;
+    margin-bottom: 20px;
+    color: #333;
+}
+
+.error-description {
+    font-size: 18px;
+    color: #666;
+    margin-bottom: 40px;
+    max-width: 500px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.error-actions .btn {
+    margin: 0 10px;
+}
+
+@media (max-width: 768px) {
+    .error-number h1 {
+        font-size: 100px;
+    }
+    
+    .error-title {
+        font-size: 28px;
+    }
+    
+    .error-description {
+        font-size: 16px;
+    }
+}
+</style>
