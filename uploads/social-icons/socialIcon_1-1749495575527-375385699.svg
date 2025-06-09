@@ -1,0 +1,6 @@
+<!-- Om in elegant script -->
+<svg width="360" height="90" viewBox="0 0 360 90" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <text x="10" y="60" font-family="Pacifico, cursive" font-size="44" fill="#212121" font-weight="bold">Om</text>
+  <text x="100" y="60" font-family="Montserrat, Arial, sans-serif" font-size="32" fill="#B7950B" font-weight="600">Academy</text>
+  <path d="M12 68 Q80 88 220 68" stroke="#B7950B" stroke-width="3" fill="none" opacity="0.7"/>
+</svg>

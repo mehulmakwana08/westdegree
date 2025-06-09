@@ -100,6 +100,15 @@
             display: block;
             border: 1px solid #ddd;
         }
+        
+        .social-link-item {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+        }
+        
+        .social-link-item:hover {
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
     </style>
 </head>
 <body>
@@ -166,7 +175,237 @@
             </li>
         </ul>
     </nav>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
-   
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1>Personal Information</h1>
+        </div>
+
+        <div class="card">
+            <div class="card-body">
+                <form action="/admin/personal-info" method="POST" enctype="multipart/form-data" id="personalInfoForm">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Name</label>
+                                <input type="text" class="form-control" name="name" value="<%= personalInfo.name || '' %>" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Title</label>
+                                <input type="text" class="form-control" name="title" value="<%= personalInfo.title || '' %>" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Email</label>
+                                <input type="email" class="form-control" name="email" value="<%= personalInfo.email || '' %>" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Phone</label>
+                                <input type="text" class="form-control" name="phone" value="<%= personalInfo.phone || '' %>" required>
+                            </div>
+                        </div>
+                        <div class="col-md-12">
+                            <div class="mb-3">
+                                <label class="form-label">Bio</label>
+                                <textarea class="form-control" name="bio" rows="4" required><%= personalInfo.bio || '' %></textarea>
+                            </div>
+                        </div>
+                        <div class="col-md-12">
+                            <div class="mb-3">
+                                <label class="form-label">Address</label>
+                                <input type="text" class="form-control" name="address" value="<%= personalInfo.address || '' %>" required>
+                            </div>
+                        </div>
+                        
+                        <!-- File Uploads -->
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Logo</label>
+                                <input type="file" class="form-control" name="logo" accept="image/*">
+                                <% if (personalInfo.logo) { %>
+                                    <img src="<%= personalInfo.logo %>" alt="Current Logo" class="image-preview">
+                                <% } %>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Profile Image</label>
+                                <input type="file" class="form-control" name="profileImage" accept="image/*">
+                                <% if (personalInfo.profileImage) { %>
+                                    <img src="<%= personalInfo.profileImage %>" alt="Current Profile" class="image-preview">
+                                <% } %>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">CV File</label>
+                                <input type="file" class="form-control" name="cvFile" accept=".pdf,.doc,.docx">
+                                <% if (personalInfo.cvFile) { %>
+                                    <small class="text-muted">Current file: <%= personalInfo.cvFile.split('/').pop() %></small>
+                                <% } %>
+                            </div>
+                        </div>
+                        
+                        <!-- Experience Stats -->
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label class="form-label">Years of Experience</label>
+                                <input type="number" class="form-control" name="yearsOfExperience" value="<%= personalInfo.yearsOfExperience || '' %>" required>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label class="form-label">Projects Completed</label>
+                                <input type="number" class="form-control" name="projectsCompleted" value="<%= personalInfo.projectsCompleted || '' %>" required>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label class="form-label">Happy Clients</label>
+                                <input type="number" class="form-control" name="happyClients" value="<%= personalInfo.happyClients || '' %>" required>
+                            </div>
+                        </div>
+                        
+                        <!-- Social Links Section -->
+                        <div class="col-md-12">
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <label class="form-label mb-0">Social Links</label>
+                                    <button type="button" class="btn btn-sm btn-primary" onclick="addSocialLink()">
+                                        <i class="fas fa-plus"></i> Add Social Link
+                                    </button>
+                                </div>
+                                <div id="socialLinksContainer">
+                                    <% if (personalInfo.socialLinks && personalInfo.socialLinks.length > 0) { %>
+                                        <% personalInfo.socialLinks.forEach((link, index) => { %>
+                                            <div class="social-link-item border p-3 mb-3 rounded" data-index="<%= index %>">
+                                                <div class="row align-items-end">
+                                                    <div class="col-md-3">
+                                                        <label class="form-label">Platform Name</label>
+                                                        <input type="text" class="form-control" name="socialLinks[<%= index %>][name]" value="<%= link.name %>" placeholder="e.g., Facebook, Twitter" required>
+                                                    </div>
+                                                    <div class="col-md-4">
+                                                        <label class="form-label">URL</label>
+                                                        <input type="url" class="form-control" name="socialLinks[<%= index %>][url]" value="<%= link.url %>" placeholder="https://..." required>
+                                                    </div>
+                                                    <div class="col-md-3">
+                                                        <label class="form-label">SVG Icon</label>
+                                                        <input type="file" class="form-control" name="socialIcon_<%= index %>" accept=".svg">
+                                                        <input type="hidden" name="socialLinks[<%= index %>][icon]" value="<%= link.icon %>">
+                                                        <% if (link.icon) { %>
+                                                            <small class="text-muted d-block">Current: <%= link.icon.split('/').pop() %></small>
+                                                        <% } %>
+                                                    </div>
+                                                    <div class="col-md-2">
+                                                        <button type="button" class="btn btn-danger btn-sm" onclick="removeSocialLink(this)">
+                                                            <i class="fas fa-trash"></i> Remove
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        <% }); %>
+                                    <% } %>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="text-end">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> Save Changes
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>    <script>
+        let socialLinkIndex = <%= (personalInfo.socialLinks && personalInfo.socialLinks.length) ? personalInfo.socialLinks.length : 0 %>;
+        
+        function addSocialLink() {
+            const container = document.getElementById('socialLinksContainer');
+            const socialLinkHtml = `
+                <div class="social-link-item border p-3 mb-3 rounded" data-index="${socialLinkIndex}">
+                    <div class="row align-items-end">
+                        <div class="col-md-3">
+                            <label class="form-label">Platform Name</label>
+                            <input type="text" class="form-control" name="socialLinks[${socialLinkIndex}][name]" placeholder="e.g., Facebook, Twitter" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">URL</label>
+                            <input type="url" class="form-control" name="socialLinks[${socialLinkIndex}][url]" placeholder="https://..." required>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">SVG Icon</label>
+                            <input type="file" class="form-control" name="socialIcon_${socialLinkIndex}" accept=".svg" required>
+                            <input type="hidden" name="socialLinks[${socialLinkIndex}][icon]" value="">
+                        </div>
+                        <div class="col-md-2">
+                            <button type="button" class="btn btn-danger btn-sm" onclick="removeSocialLink(this)">
+                                <i class="fas fa-trash"></i> Remove
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            container.insertAdjacentHTML('beforeend', socialLinkHtml);
+            socialLinkIndex++;
+        }
+        
+        function removeSocialLink(button) {
+            if (confirm('Are you sure you want to remove this social link?')) {
+                const socialLinkItem = button.closest('.social-link-item');
+                socialLinkItem.remove();
+                
+                // Re-index remaining social links
+                const remainingLinks = document.querySelectorAll('.social-link-item');
+                remainingLinks.forEach((link, index) => {
+                    link.setAttribute('data-index', index);
+                    const inputs = link.querySelectorAll('input');
+                    inputs.forEach(input => {
+                        if (input.name.includes('socialLinks[')) {
+                            input.name = input.name.replace(/socialLinks\[\d+\]/, `socialLinks[${index}]`);
+                        }
+                        if (input.name.includes('socialIcon_')) {
+                            input.name = `socialIcon_${index}`;
+                        }
+                    });
+                });
+                socialLinkIndex = remainingLinks.length;
+            }
+        }
+
+        // Form submission handler to convert social links to JSON
+        document.getElementById('personalInfoForm').addEventListener('submit', function(e) {
+            const socialLinks = [];
+            const socialLinkItems = document.querySelectorAll('.social-link-item');
+            
+            socialLinkItems.forEach((item, index) => {
+                const name = item.querySelector(`input[name="socialLinks[${index}][name]"]`).value;
+                const url = item.querySelector(`input[name="socialLinks[${index}][url]"]`).value;
+                const icon = item.querySelector(`input[name="socialLinks[${index}][icon]"]`).value;
+                
+                if (name && url) {
+                    socialLinks.push({ name, url, icon });
+                }
+            });
+            
+            // Add hidden input with JSON data
+            const hiddenInput = document.createElement('input');
+            hiddenInput.type = 'hidden';
+            hiddenInput.name = 'socialLinks';
+            hiddenInput.value = JSON.stringify(socialLinks);
+            this.appendChild(hiddenInput);
+        });
+    </script>
 </body>
 </html>

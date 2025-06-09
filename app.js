@@ -5,12 +5,52 @@ const bodyParser = require('body-parser');
 const session = require('express-session');
 const multer = require('multer');
 const nodemailer = require('nodemailer');
+const mongoose = require('mongoose');
+const User = require('./models/User');
+const authController = require('./controllers/authController');
+const adminController = require('./controllers/adminController');
+const bcrypt = require('bcryptjs');
+const logger = require('./utils/logger');
 
 // Load environment variables
 dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+
+// Ensure upload directories exist
+const fs = require('fs');
+const uploadDirs = [
+    'uploads',
+    'uploads/logos',
+    'uploads/profiles', 
+    'uploads/cvs',
+    'uploads/social-icons'
+];
+
+uploadDirs.forEach(dir => {
+    if (!fs.existsSync(dir)) {
+        fs.mkdirSync(dir, { recursive: true });
+        logger.info(`Created directory: ${dir}`);
+    }
+});
+
+// Connect to MongoDB
+mongoose.connect(process.env.MONGODB_URI, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true
+})
+.then(() => {
+    logger.info('Connected to MongoDB Atlas');
+    console.log('Connected to MongoDB Atlas');
+})
+.catch(err => {
+    logger.error('MongoDB connection error:', err);
+    console.error('MongoDB connection error:', err);
+});
+
+// Import routes
+const personalInfoRoutes = require('./routes/personalInfoRoutes');
 
 // Set up EJS as the template engine
 app.set('view engine', 'ejs');
@@ -91,72 +131,44 @@ app.get('/blog-details-light', (req, res) => {
     });
 });
 
+// Admin route middleware to check authentication
+const { isAuthenticated, authenticateJWT, authenticateHybrid } = require('./middleware/auth');
+
 // Admin routes
 app.get('/admin', (req, res) => {
     res.redirect('/admin/login');
 });
 
-app.get('/admin/login', (req, res) => {
-    res.render('admin/login', {
-        title: 'Admin Login - Gerold Portfolio',
-        pageTitle: 'Admin Login',
-        siteName: process.env.SITE_NAME || 'Gerold Portfolio'
-    });
+app.get('/admin/login', authController.getLogin);
+app.post('/admin/login', authController.postLogin);
+app.get('/admin/register', (req, res) => {
+    res.render('admin/register', { title: 'Admin Registration - Testing' });
 });
+app.post('/admin/register', authController.postRegister); // Testing route
+app.get('/admin/dashboard', isAuthenticated, adminController.getDashboard);
+app.get('/admin/logout', authController.logout);
 
-app.get('/admin/dashboard', (req, res) => {
-    // Simple authentication check (you should implement proper authentication)
-    if (req.session.isAuthenticated) {
-        res.render('admin/dashboard', {
-            title: 'Dashboard - Gerold Portfolio',
-            pageTitle: 'Dashboard',
-            siteName: process.env.SITE_NAME || 'Gerold Portfolio'
-        });
-    } else {
-        res.redirect('/admin/login');
-    }
-});
+// API routes for JWT authentication
+app.get('/api/dashboard', authenticateJWT, adminController.getDashboard);
+app.post('/api/login', authController.postLogin);
+app.post('/api/register', authController.postRegister);
 
-app.get('/admin/personal-info', (req, res) => {
-    if (req.session.isAuthenticated) {
-        res.render('admin/personal-info', {
-            title: 'Personal Info - Gerold Portfolio',
-            pageTitle: 'Personal Info',
-            siteName: process.env.SITE_NAME || 'Gerold Portfolio'
-        });
-    } else {
-        res.redirect('/admin/login');
-    }
-});
-
-app.get('/admin/portfolio', (req, res) => {
-    if (req.session.isAuthenticated) {
-        res.render('admin/portfolio', {
-            title: 'Portfolio Management - Gerold Portfolio',
-            pageTitle: 'Portfolio Management',
-            siteName: process.env.SITE_NAME || 'Gerold Portfolio'
-        });
-    } else {
-        res.redirect('/admin/login');
-    }
-});
-
-app.get('/admin/services', (req, res) => {
-    if (req.session.isAuthenticated) {
-        res.render('admin/services', {
-            title: 'Services Management - Gerold Portfolio',
-            pageTitle: 'Services Management',
-            siteName: process.env.SITE_NAME || 'Gerold Portfolio'
-        });
-    } else {
-        res.redirect('/admin/login');
-    }
-});
+// Apply authentication middleware to admin routes
+app.use('/admin/personal-info', isAuthenticated);
+app.use('/admin/services', isAuthenticated);
+app.use('/admin/portfolio', isAuthenticated);
+app.use('/admin/experience', isAuthenticated);
+app.use('/admin/education', isAuthenticated);
+app.use('/admin/skills', isAuthenticated);
+app.use('/admin/testimonials', isAuthenticated);
+app.use('/admin/blogs', isAuthenticated);
+app.use('/admin/contacts', isAuthenticated);
 
 // Contact form handler
 app.post('/contact', async (req, res) => {
     try {
         const { name, email, subject, message } = req.body;
+        logger.info(`Contact form submission from ${email}`);
 
         // Create nodemailer transporter
         const transporter = nodemailer.createTransporter({
@@ -186,45 +198,28 @@ app.post('/contact', async (req, res) => {
 
         // Send email
         await transporter.sendMail(mailOptions);
+        logger.info(`Contact form email sent successfully for ${email}`);
         res.json({ success: true, message: 'Message sent successfully!' });
     } catch (error) {
+        logger.error('Contact form error:', error);
         console.error('Contact form error:', error);
         res.json({ success: false, message: 'Failed to send message. Please try again.' });
     }
 });
 
-// Simple admin login handler (you should implement proper authentication)
-app.post('/admin/login', (req, res) => {
-    const { username, password } = req.body;
-    
-    // Simple authentication (replace with proper authentication)
-    if (username === 'admin' && password === 'password') {
-        req.session.isAuthenticated = true;
-        res.redirect('/admin/dashboard');
-    } else {
-        res.render('admin/login', {
-            title: 'Admin Login - Gerold Portfolio',
-            pageTitle: 'Admin Login',
-            siteName: process.env.SITE_NAME || 'Gerold Portfolio',
-            error: 'Invalid credentials'
-        });
-    }
-});
-
-// Admin logout
-app.post('/admin/logout', (req, res) => {
-    req.session.destroy();
-    res.redirect('/admin/login');
-});
-
 // File upload handler
 app.post('/upload', upload.single('file'), (req, res) => {
     if (req.file) {
+        logger.info(`File uploaded successfully: ${req.file.filename}`);
         res.json({ success: true, filename: req.file.filename, path: `/uploads/${req.file.filename}` });
     } else {
+        logger.warn('File upload failed: No file provided');
         res.json({ success: false, message: 'No file uploaded' });
     }
 });
+
+// Use routes
+app.use('/', personalInfoRoutes);
 
 // 404 handler
 app.get('*', (req, res) => {
