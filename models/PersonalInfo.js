@@ -28,15 +28,21 @@ const personalInfoSchema = new mongoose.Schema({
     },    socialLinks: [{
         name: {
             type: String,
-            required: true
+            required: function() {
+                // Only require name if this socialLink has any data
+                return this.url || this.icon;
+            }
         },
         url: {
             type: String,
-            required: true
+            required: function() {
+                // Only require url if this socialLink has any data
+                return this.name || this.icon;
+            }
         },
         icon: {
             type: String, // Path to uploaded SVG icon
-            required: false // Make icon optional
+            required: false // Icon is optional
         }
     }],
     cvFile: {

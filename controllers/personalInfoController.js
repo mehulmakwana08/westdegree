@@ -41,7 +41,7 @@ exports.updatePersonalInfo = async (req, res) => {
                     logger.info(`CV file uploaded: ${updateData.cvFile}`);
                 }
             });
-        }// Handle social links
+        }        // Handle social links
         if (req.body.socialLinks) {
             const socialLinksData = typeof req.body.socialLinks === 'string' 
                 ? JSON.parse(req.body.socialLinks) 
@@ -49,7 +49,7 @@ exports.updatePersonalInfo = async (req, res) => {
 
             // Filter out empty social links and validate required fields
             updateData.socialLinks = socialLinksData
-                .filter(link => link.name && link.url) // Only include links with name and url
+                .filter(link => link.name && link.url && link.name.trim() && link.url.trim()) // Only include links with both name and url
                 .map((link, index) => {
                     const socialIconFile = req.files?.find(file => 
                         file.fieldname === `socialIcon_${index}`
@@ -60,9 +60,11 @@ exports.updatePersonalInfo = async (req, res) => {
                         url: link.url.trim(),
                         icon: socialIconFile 
                             ? '/' + socialIconFile.path.replace(/\\/g, '/') 
-                            : (link.icon || '') // Provide default empty string if no icon
+                            : (link.icon || '') // Keep existing icon or empty string
                     };
                 });
+            
+            logger.info(`Processed ${updateData.socialLinks.length} valid social links`);
         }        if (personalInfo) {
             // Update existing record
             logger.info(`Updating existing personal info with ID: ${personalInfo._id}`);
@@ -72,14 +74,28 @@ exports.updatePersonalInfo = async (req, res) => {
                 { new: true }
             );
             logger.info('Personal information updated successfully');
-            res.json(updatedInfo);
+            
+            // For API requests, return JSON
+            if (req.headers.accept && req.headers.accept.includes('application/json')) {
+                return res.json(updatedInfo);
+            }
+            
+            // For web requests, redirect with success message
+            return res.redirect('/admin/personal-info?success=updated');
         } else {
             // Create new record
             logger.info('Creating new personal information record');
             const newPersonalInfo = new PersonalInfo(updateData);
             await newPersonalInfo.save();
             logger.info('Personal information created successfully');
-            res.status(201).json(newPersonalInfo);
+            
+            // For API requests, return JSON
+            if (req.headers.accept && req.headers.accept.includes('application/json')) {
+                return res.status(201).json(newPersonalInfo);
+            }
+            
+            // For web requests, redirect with success message
+            return res.redirect('/admin/personal-info?success=created');
         }
     } catch (error) {
         logger.error('Error updating personal information:', error);
@@ -92,10 +108,17 @@ exports.getAdminPersonalInfo = async (req, res) => {
     try {
         logger.info('Loading admin personal info page');
         const personalInfo = await PersonalInfo.findOne();
+        
+        // Check for success or error messages in query parameters
+        const successMessage = req.query.success;
+        const errorMessage = req.query.error;
+        
         logger.info('Admin personal info page loaded successfully');
         res.render('admin/personal-info', {
             title: 'Personal Info - Admin',
-            personalInfo: personalInfo || {}
+            personalInfo: personalInfo || {},
+            successMessage: successMessage,
+            errorMessage: errorMessage
         });
     } catch (error) {
         logger.error('Error loading personal information page:', error);

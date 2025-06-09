@@ -51,6 +51,7 @@ mongoose.connect(process.env.MONGODB_URI, {
 
 // Import routes
 const personalInfoRoutes = require('./routes/personalInfoRoutes');
+const servicesRoutes = require('./routes/servicesRoutes');
 
 // Set up EJS as the template engine
 app.set('view engine', 'ejs');
@@ -82,13 +83,34 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage: storage });
 
+// Import PersonalInfo model
+const PersonalInfo = require('./models/PersonalInfo');
+const Service = require('./models/Service');
+
 // Routes
-app.get('/', (req, res) => {
-    res.render('index', {
-        title: 'Gerold - Personal Portfolio',
-        pageTitle: 'Home',
-        siteName: process.env.SITE_NAME || 'Gerold Portfolio'
-    });
+app.get('/', async (req, res) => {
+    try {
+        const personalInfo = await PersonalInfo.findOne();
+        const services = await Service.find({ isActive: true }).sort({ order: 1, createdAt: 1 });
+        logger.info('Loading homepage with personal info and services');
+        
+        res.render('index', {
+            title: personalInfo ? `${personalInfo.name} - Personal Portfolio` : 'Personal Portfolio',
+            pageTitle: 'Home',
+            siteName: personalInfo ? personalInfo.name : 'Personal Portfolio',
+            personalInfo: personalInfo || {},
+            services: services || []
+        });
+    } catch (error) {
+        logger.error('Error loading homepage:', error);
+        res.render('index', {
+            title: 'Personal Portfolio',
+            pageTitle: 'Home',
+            siteName: 'Personal Portfolio',
+            personalInfo: {},
+            services: []
+        });
+    }
 });
 
 app.get('/light', (req, res) => {
@@ -220,14 +242,27 @@ app.post('/upload', upload.single('file'), (req, res) => {
 
 // Use routes
 app.use('/', personalInfoRoutes);
+app.use('/', servicesRoutes);
 
 // 404 handler
-app.get('*', (req, res) => {
-    res.status(404).render('404', {
-        title: '404 - Page Not Found',
-        pageTitle: '404 - Page Not Found',
-        siteName: process.env.SITE_NAME || 'Gerold Portfolio'
-    });
+app.get('*', async (req, res) => {
+    try {
+        const personalInfo = await PersonalInfo.findOne();
+        res.status(404).render('404', {
+            title: '404 - Page Not Found',
+            pageTitle: '404 - Page Not Found',
+            siteName: process.env.SITE_NAME || 'Gerold Portfolio',
+            personalInfo: personalInfo || {}
+        });
+    } catch (error) {
+        logger.error('Error loading 404 page:', error);
+        res.status(404).render('404', {
+            title: '404 - Page Not Found',
+            pageTitle: '404 - Page Not Found',
+            siteName: process.env.SITE_NAME || 'Gerold Portfolio',
+            personalInfo: {}
+        });
+    }
 });
 
 // Error handler

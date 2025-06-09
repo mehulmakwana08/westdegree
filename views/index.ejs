@@ -43,56 +43,61 @@
             </div>
            <div class="container">
                 <div class="row align-items-center">
-                    <div class="col-md-6">
-                        <div class="hero-content-box">
-                            <span class="hero-sub-title">ANIL MOKASANA</span>
-                            <h1 class="hero-title">Graphic designer &<br>3D Animator
+                    <div class="col-md-6">                        <div class="hero-content-box">
+                            <span class="hero-sub-title"><%= personalInfo.name || 'ANIL MOKASANA' %></span>
+                            <h1 class="hero-title"><%= personalInfo.title || 'Graphic designer &' %>
                             </h1>
 
                             <div class="hero-image-box d-md-none text-center">
-                                <img src="assets/img/hero/mehul.jpeg" alt="">
+                                <img src="<%= personalInfo.profileImage || 'assets/img/hero/mehul.jpeg' %>" alt="<%= personalInfo.name || 'Profile' %>">
                             </div>
 
-                            <p class="lead">I'm not just a Graphic Designer and 3D animator, I'm a visual sorcerer,I have  4+ years of 
-                                experience in graphic design conjuring ideas into a vibrant dance of pixels and polygons.
-                                With a touch of design magic & a dash of 3D wizardry, I bring concepts to life, turning 
-                                ordinary visuals into extraordinary experiences.</p>
+                            <p class="lead"><%= personalInfo.bio || "I'm not just a Graphic Designer and 3D animator, I'm a visual sorcerer,I have  4+ years of experience in graphic design conjuring ideas into a vibrant dance of pixels and polygons. With a touch of design magic & a dash of 3D wizardry, I bring concepts to life, turning ordinary visuals into extraordinary experiences." %></p>
                             <div class="button-box d-flex flex-wrap align-items-center">
-                                <a href="Designer Anil .pdf"  class="btn tj-btn-secondary">Download
+                                <a href="<%= personalInfo.cvFile || 'Designer Anil .pdf' %>"  class="btn tj-btn-secondary">Download
                                     CV <i class="flaticon-download"></i></a>
                                 <ul class="ul-reset social-icons">
-                                    <li><a href="#"><img src="assets/img/icons/LOGO.svg"></a></li>
-                                    <li><a href="#"><i class="fa fa-bars"></i></a></li>
-                                    <li><a href="#"><i class="fa-brands fa-linkedin-in"></i></a></li>
-                                    <li><a href="#"><i class="fa-brands fa-github"></i></a></li>
+                                    <% if (personalInfo.socialLinks && personalInfo.socialLinks.length > 0) { %>
+                                        <% personalInfo.socialLinks.forEach(link => { %>
+                                            <li><a href="<%= link.url %>" target="_blank" title="<%= link.name %>">
+                                                <% if (link.icon) { %>
+                                                    <img src="<%= link.icon %>" alt="<%= link.name %>">
+                                                <% } else { %>
+                                                    <i class="fa fa-link"></i>
+                                                <% } %>
+                                            </a></li>
+                                        <% }) %>
+                                    <% } else { %>
+                                        <li><a href="#"><img src="assets/img/icons/LOGO.svg"></a></li>
+                                        <li><a href="#"><i class="fa fa-bars"></i></a></li>
+                                        <li><a href="#"><i class="fa-brands fa-linkedin-in"></i></a></li>
+                                        <li><a href="#"><i class="fa-brands fa-github"></i></a></li>
+                                    <% } %>
                                 </ul>
                             </div>
                         </div>
-                    </div>
-                    <div class="col-md-6 d-none d-md-block">
+                    </div>                    <div class="col-md-6 d-none d-md-block">
                         <div class="hero-image-box text-center">
-                            <img src="assets/img/hero/mehul.jpeg" alt="">
+                            <img src="<%= personalInfo.profileImage || 'assets/img/hero/mehul.jpeg' %>" alt="<%= personalInfo.name || 'Profile' %>">
                         </div>
                     </div>
-                </div>
-
-                <div class="funfact-area">
+                </div>                <div class="funfact-area">
                     <div class="row">
                         <div class="col-6 col-lg-4">
                             <div class="funfact-item d-flex flex-column flex-sm-row flex-wrap align-items-center">
-                                <div class="number"><span class="odometer" data-count="4">0</span>+</div>
+                                <div class="number"><span class="odometer" data-count="<%= personalInfo.yearsOfExperience || 4 %>">0</span>+</div>
                                 <div class="text">Years of <br>Experience</div>
                             </div>
                         </div>
                         <div class="col-6 col-lg-4">
                             <div class="funfact-item d-flex flex-column flex-sm-row flex-wrap align-items-center">
-                                <div class="number"><span class="odometer" data-count="25">0</span>+</div>
+                                <div class="number"><span class="odometer" data-count="<%= personalInfo.projectsCompleted || 25 %>">0</span>+</div>
                                 <div class="text">Project <br>Completed</div>
                             </div>
                         </div>
                         <div class="col-6 col-lg-4">
                             <div class="funfact-item d-flex flex-column flex-sm-row flex-wrap align-items-center">
-                                <div class="number"><span class="odometer" data-count="20">0</span></div>
+                                <div class="number"><span class="odometer" data-count="<%= personalInfo.happyClients || 20 %>">0</span></div>
                                 <div class="text">Happy <br>Clients</div>
                             </div>
                         </div>
@@ -119,62 +124,71 @@
                 <div class="row">
                     <div class="col-md-12">
                         <div class="services-widget position-relative">
-                            <div class="service-item current d-flex flex-wrap align-items-center wow fadeInUp"
-                                data-wow-delay=".5s">
-                                <div class="left-box d-flex flex-wrap align-items-center">
-                                    <span class="number">01</span>
-                                    <h3 class="service-title">Branding Design</h3>
+                            <% if (services && services.length > 0) { %>
+                                <% services.forEach((service, index) => { %>
+                                    <div class="service-item <%= index === 0 ? 'current' : '' %> d-flex flex-wrap align-items-center wow fadeInUp" data-wow-delay=".<%= 5 + index %>s">
+                                        <div class="left-box d-flex flex-wrap align-items-center">
+                                            <span class="number"><%= service.number %></span>
+                                            <h3 class="service-title"><%= service.title %></h3>
+                                        </div>
+                                        <div class="right-box">
+                                            <p><%= service.description %></p>
+                                        </div>
+                                        <% if (service.icon) { %>
+                                            <i class="<%= service.icon %>"></i>
+                                        <% } else { %>
+                                            <i class="flaticon-up-right-arrow"></i>
+                                        <% } %>
+                                        <button data-mfp-src="#service-wrapper"></button>
+                                    </div>
+                                <% }) %>
+                            <% } else { %>
+                                <!-- Default services if none exist in database -->
+                                <div class="service-item current d-flex flex-wrap align-items-center wow fadeInUp" data-wow-delay=".5s">
+                                    <div class="left-box d-flex flex-wrap align-items-center">
+                                        <span class="number">01</span>
+                                        <h3 class="service-title">Branding Design</h3>
+                                    </div>
+                                    <div class="right-box">
+                                        <p>I break down complex user experience problems to create integrity focused solutions that connect billions of people</p>
+                                    </div>
+                                    <i class="flaticon-up-right-arrow"></i>
+                                    <button data-mfp-src="#service-wrapper"></button>
                                 </div>
-                                <div class="right-box">
-                                    <p>I break down complex user experinece problems to create integritiy focussed
-                                        solutions
-                                        that connect billions of people</p>
+                                <div class="service-item d-flex flex-wrap align-items-center wow fadeInUp" data-wow-delay=".6s">
+                                    <div class="left-box d-flex flex-wrap align-items-center">
+                                        <span class="number">02</span>
+                                        <h3 class="service-title">Web Design</h3>
+                                    </div>
+                                    <div class="right-box">
+                                        <p>I break down complex user experience problems to create integrity focused solutions that connect billions of people</p>
+                                    </div>
+                                    <i class="flaticon-up-right-arrow"></i>
+                                    <button data-mfp-src="#service-wrapper"></button>
                                 </div>
-                                <i class="flaticon-up-right-arrow"></i>
-                                <button data-mfp-src="#service-wrapper" ></button>
-                            </div>
-                            <div class="service-item d-flex flex-wrap align-items-center wow fadeInUp"
-                                data-wow-delay=".6s">
-                                <div class="left-box d-flex flex-wrap align-items-center">
-                                    <span class="number">02</span>
-                                    <h3 class="service-title">Web Design</h3>
+                                <div class="service-item d-flex flex-wrap align-items-center wow fadeInUp" data-wow-delay=".7s">
+                                    <div class="left-box d-flex flex-wrap align-items-center">
+                                        <span class="number">03</span>
+                                        <h3 class="service-title">UI/UX Design</h3>
+                                    </div>
+                                    <div class="right-box">
+                                        <p>I break down complex user experience problems to create integrity focused solutions</p>
+                                    </div>
+                                    <i class="flaticon-up-right-arrow"></i>
+                                    <button data-mfp-src="#service-wrapper"></button>
                                 </div>
-                                <div class="right-box">
-                                    <p>I break down complex user experinece problems to create integritiy focussed
-                                        solutions
-                                        that connect billions of people</p>
+                                <div class="service-item d-flex flex-wrap align-items-center wow fadeInUp" data-wow-delay=".8s">
+                                    <div class="left-box d-flex flex-wrap align-items-center">
+                                        <span class="number">04</span>
+                                        <h3 class="service-title">Graphics Design</h3>
+                                    </div>
+                                    <div class="right-box">
+                                        <p>I break down complex user experience problems to create integrity focused solutions</p>
+                                    </div>
+                                    <i class="flaticon-up-right-arrow"></i>
+                                    <button data-mfp-src="#service-wrapper"></button>
                                 </div>
-                                <i class="flaticon-up-right-arrow"></i>
-                                <button data-mfp-src="#service-wrapper" ></button>
-                            </div>
-                            <div class="service-item d-flex flex-wrap align-items-center wow fadeInUp"
-                                data-wow-delay=".7s">
-                                <div class="left-box d-flex flex-wrap align-items-center">
-                                    <span class="number">03</span>
-                                    <h3 class="service-title">UI/UX Design</h3>
-                                </div>
-                                <div class="right-box">
-                                    <p>I break down complex user experinece problems to create integritiy focussed
-                                        solutions
-                                        that connect billions of people</p>
-                                </div>
-                                <i class="flaticon-up-right-arrow"></i>
-                                <button data-mfp-src="#service-wrapper" ></button>
-                            </div>
-                            <div class="service-item d-flex flex-wrap align-items-center wow fadeInUp"
-                                data-wow-delay=".8s">
-                                <div class="left-box d-flex flex-wrap align-items-center">
-                                    <span class="number">04</span>
-                                    <h3 class="service-title">Graphics Design</h3>
-                                </div>
-                                <div class="right-box">
-                                    <p>I break down complex user experinece problems to create integritiy focussed
-                                        solutions
-                                        that connect billions of people</p>
-                                </div>
-                                <i class="flaticon-up-right-arrow"></i>
-                                <button data-mfp-src="#service-wrapper" ></button>
-                            </div>
+                            <% } %>
                             <div class="active-bg wow fadeInUp" data-wow-delay=".5s"></div>
                         </div>
                     </div>
@@ -924,15 +938,14 @@
 
                     <div class="col-lg-5 offset-lg-1 col-md-5  d-flex flex-wrap align-items-center  order-1 order-md-2">
                         <div class="contact-info-list">
-                            <ul class="ul-reset">
-                                <li class="d-flex flex-wrap align-items-center position-relative wow fadeInRight"
+                            <ul class="ul-reset">                                <li class="d-flex flex-wrap align-items-center position-relative wow fadeInRight"
                                     data-wow-delay=".4s">
                                     <div class="icon-box">
                                         <i class="flaticon-phone-call"></i>
                                     </div>
                                     <div class="text-box">
                                         <p>Phone</p>
-                                        <a href="tel:0123456789">+01 123 654 8096</a>
+                                        <a href="tel:<%= personalInfo.phone || '+01 123 654 8096' %>"><%= personalInfo.phone || '+01 123 654 8096' %></a>
                                     </div>
                                 </li>
                                 <li class="d-flex flex-wrap align-items-center position-relative wow fadeInRight"
@@ -942,7 +955,7 @@
                                     </div>
                                     <div class="text-box">
                                         <p>Email</p>
-                                        <a href="mailto:mail@mail.com">gerolddesign@mail.com</a>
+                                        <a href="mailto:<%= personalInfo.email %>"><%= personalInfo.email %></a>
                                     </div>
                                 </li>
                                 <li class="d-flex flex-wrap align-items-center position-relative wow fadeInRight"
@@ -952,7 +965,7 @@
                                     </div>
                                     <div class="text-box">
                                         <p>Address</p>
-                                        <a href="#">Warne Park Street Pine, <br>FL 33157, New York</a>
+                                        <a href="#"><%= personalInfo.address || 'Warne Park Street Pine, FL 33157, New York' %></a>
                                     </div>
                                 </li>
                             </ul>
