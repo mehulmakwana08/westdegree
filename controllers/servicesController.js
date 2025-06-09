@@ -70,14 +70,13 @@ exports.createService = async (req, res) => {
                 message: 'Number, title, and description are required' 
             });
         }
-        
-        const service = new Service({
+          const service = new Service({
             number: number.trim(),
             title: title.trim(),
             description: description.trim(),
             icon: icon ? icon.trim() : '',
             order: order || 1,
-            isActive: isActive !== undefined ? isActive : true
+            isActive: isActive === 'on' ? true : (isActive !== undefined ? isActive : true)
         });
         
         await service.save();
@@ -113,14 +112,13 @@ exports.updateService = async (req, res) => {
                 message: 'Number, title, and description are required' 
             });
         }
-        
-        const updateData = {
+          const updateData = {
             number: number.trim(),
             title: title.trim(),
             description: description.trim(),
             icon: icon ? icon.trim() : '',
             order: order || 1,
-            isActive: isActive !== undefined ? isActive : true
+            isActive: isActive === 'on' ? true : (isActive !== undefined ? isActive : true)
         };
         
         const service = await Service.findByIdAndUpdate(
