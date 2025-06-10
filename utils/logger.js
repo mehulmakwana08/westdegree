@@ -4,7 +4,7 @@ const path = require('path');
 
 // Create a Winston logger instance
 const logger = winston.createLogger({
-    level: process.env.LOG_LEVEL || 'info',
+    level: process.env.LOG_LEVEL || (process.env.NODE_ENV === 'production' ? 'warn' : 'info'),
     format: winston.format.combine(
         winston.format.timestamp({
             format: 'YYYY-MM-DD HH:mm:ss'
@@ -12,7 +12,10 @@ const logger = winston.createLogger({
         winston.format.errors({ stack: true }),
         winston.format.json()
     ),
-    defaultMeta: { service: 'dynamic-portfolio' },
+    defaultMeta: { 
+        service: 'dynamic-portfolio',
+        environment: process.env.NODE_ENV || 'development'
+    },
     transports: [
         // Write all logs with importance level of `error` or less to `error.log`
         new winston.transports.File({

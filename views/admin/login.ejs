@@ -124,9 +124,7 @@
                     window.location.href = '/admin/dashboard';
                 } else {
                     throw new Error(data.message || 'Login failed');
-                }
-            } catch (error) {
-                console.error('Login error:', error);
+                }            } catch (error) {
                 alert('Login failed: ' + error.message);
             }
         }

@@ -45,11 +45,9 @@ uploadDirs.forEach(dir => {
 mongoose.connect(process.env.MONGODB_URI)
 .then(() => {
     logger.info('Connected to MongoDB Atlas');
-    console.log('Connected to MongoDB Atlas');
 })
 .catch(err => {
     logger.error('MongoDB connection error:', err);
-    console.error('MongoDB connection error:', err);
 });
 
 // Import routes
@@ -80,6 +78,37 @@ app.use((req, res, next) => {
     } else {
         next();
     }
+});
+
+// Request logging middleware (production-ready)
+app.use((req, res, next) => {
+    const start = Date.now();
+    
+    res.on('finish', () => {
+        const duration = Date.now() - start;
+        const logLevel = res.statusCode >= 400 ? 'warn' : 'info';
+        
+        logger.log(logLevel, 'HTTP Request', {
+            method: req.method,
+            url: req.url,
+            statusCode: res.statusCode,
+            duration: `${duration}ms`,
+            userAgent: req.get('User-Agent'),
+            ip: req.ip || req.connection.remoteAddress
+        });
+        
+        // Log errors separately
+        if (res.statusCode >= 500) {
+            logger.error('Server Error', {
+                method: req.method,
+                url: req.url,
+                statusCode: res.statusCode,
+                duration: `${duration}ms`
+            });
+        }
+    });
+    
+    next();
 });
 
 // Serve static files from /assets URL
@@ -265,11 +294,13 @@ app.use('/admin/contacts', isAuthenticated);
 // Contact form handler
 app.post('/contact', async (req, res) => {
     try {
-        console.log('Contact form data received:', req.body);
-        console.log('Request headers:', {
-            'content-type': req.headers['content-type'],
-            'x-requested-with': req.headers['x-requested-with'],
-            'accept': req.headers.accept
+        logger.info('Contact form data received', { 
+            body: req.body,
+            headers: {
+                'content-type': req.headers['content-type'],
+                'x-requested-with': req.headers['x-requested-with'],
+                'accept': req.headers.accept
+            }
         });
         
         const { name, email, subject, message, conName, conLName, conEmail, conPhone, conService, conMessage } = req.body;
@@ -281,7 +312,7 @@ app.post('/contact', async (req, res) => {
         const phone = conPhone || req.body.phone || req.body.userPhone || '';
         const service = conService || req.body.service || req.body.userService || '';
         
-        console.log('Processed form data:', {
+        logger.debug('Processed form data', {
             firstName,
             lastName,
             contactEmail,
@@ -418,16 +449,16 @@ app.get('*', async (req, res) => {
 
 // Error handler
 app.use((err, req, res, next) => {
-    console.error(err.stack);
+    logger.error('Application error', { error: err.stack, message: err.message });
     res.status(500).send('Something broke!');
 });
 
 // Start server
 app.listen(PORT, () => {
-    console.log(`🚀 Server is running on http://localhost:${PORT}`);
-    console.log(`📁 Views directory: ${path.join(__dirname, 'views')}`);
-    console.log(`📁 Static files directory: ${path.join(__dirname, 'assets')}`);
-    console.log(`🔧 Environment: ${process.env.NODE_ENV || 'development'}`);
+    logger.info(`Server is running on http://localhost:${PORT}`);
+    logger.info(`Views directory: ${path.join(__dirname, 'views')}`);
+    logger.info(`Static files directory: ${path.join(__dirname, 'assets')}`);
+    logger.info(`Environment: ${process.env.NODE_ENV || 'development'}`);
 });
 
 module.exports = app;

@@ -3,13 +3,12 @@ class SkillsManager {
     constructor() {
         this.skillsContainer = document.querySelector('.skills-widget');
         this.init();
-    }
-
-    async init() {
+    }    async init() {
         try {
             await this.loadSkills();
         } catch (error) {
-            console.error('Error loading skills:', error);
+            // Silently handle errors in production
+            // Error logging should be handled server-side
         }
     }
 
@@ -21,9 +20,9 @@ class SkillsManager {
             if (skills && skills.length > 0) {
                 this.renderSkills(skills);
                 this.initAnimations();
-            }
-        } catch (error) {
-            console.error('Error fetching skills:', error);
+            }        } catch (error) {
+            // Silently handle errors in production
+            // Error logging should be handled server-side
         }
     }
 

@@ -517,9 +517,7 @@
                         alert(data.message);
                         location.reload();
                     }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
+                })                .catch(error => {
                     alert('An error occurred while marking contacts as read.');
                 });
             }
@@ -554,9 +552,7 @@
                 .then(data => {
                     alert(data.message || `${data.deletedCount || contactIds.length} contacts deleted successfully`);
                     location.reload();
-                })
-                .catch(error => {
-                    console.error('Error:', error);
+                })                .catch(error => {
                     alert('An error occurred while deleting contacts.');
                 });
             }
@@ -601,9 +597,7 @@
                     
                     const modal = new bootstrap.Modal(document.getElementById('contactModal'));
                     modal.show();
-                })
-                .catch(error => {
-                    console.error('Error:', error);
+                })                .catch(error => {
                     alert('Error loading contact details.');
                 });
         }
@@ -622,9 +616,7 @@
                     location.reload();
                 } else {
                     alert('Error marking contact as read');
-                }
-            } catch (error) {
-                console.error('Error marking contact as read:', error);
+                }            } catch (error) {
                 alert('Error marking contact as read');
             }
         }

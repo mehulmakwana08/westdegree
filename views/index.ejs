@@ -801,7 +801,7 @@
         <!-- TESTIMONIALS SECTION END -->
 
         <!-- BLOG SECTION STAR -->
-        <section class="blog-section" id="blog-section">
+        <!-- <section class="blog-section" id="blog-section">
             <div class="container">
                 <div class="row">
                     <div class="col-md-12">
@@ -875,7 +875,7 @@
                     </div>
                 </div>
             </div>
-        </section>
+        </section> -->
         <!-- BLOG SECTION END -->
         <!-- CONTACT SECTION START -->
         <section class="contact-section" id="contact-section">
@@ -1019,20 +1019,20 @@
         </div>
     </div>    <!-- Contact Form Enhancement Script -->
     <script>
+// Client-side logging removed for production
+// All error handling is done silently with user-friendly messages
+
 document.addEventListener('DOMContentLoaded', function() {
     const contactForm = document.getElementById('contact-form');
     
     if (contactForm) {
-        console.log('Contact form found:', contactForm);
         
         // Remove any existing jQuery validation submit handler
         if (typeof $ !== 'undefined') {
             $(contactForm).off('submit');
         }
-        
-        contactForm.addEventListener('submit', function(e) {
+          contactForm.addEventListener('submit', function(e) {
             e.preventDefault(); // Prevent default form submission
-            console.log('Form submitted via JavaScript');
             
             // Get form data using traditional method instead of FormData
             const formElements = contactForm.elements;
@@ -1043,11 +1043,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 const element = formElements[i];
                 if (element.name && element.type !== 'submit') {
                     formData[element.name] = element.value || '';
-                }
-            }
-            
-            // Debug: Log all form data
-            console.log('Form data being sent:', formData);
+                }            }
             
             // Validate required fields
             if (!formData.conName || !formData.conEmail || !formData.conMessage) {
@@ -1088,27 +1084,20 @@ document.addEventListener('DOMContentLoaded', function() {
                     'Content-Type': 'application/x-www-form-urlencoded',
                     'X-Requested-With': 'XMLHttpRequest'
                 },
-                body: urlEncodedData
-            })
+                body: urlEncodedData            })
             .then(response => {
-                console.log('Response status:', response.status);
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }
                 return response.json();
-            })
-            .then(data => {
-                console.log('Contact form response:', data);
-                
+            })            .then(data => {
                 if (data.success) {
                     showContactMessage(data.message || 'Thank you for your message! We will get back to you soon.', true);
                     contactForm.reset(); // Clear form on success
                 } else {
                     showContactMessage(data.message || 'Failed to send message. Please try again.', false);
                 }
-            })
-            .catch(error => {
-                console.error('Contact form error:', error);
+            })            .catch(error => {
                 showContactMessage('An error occurred while sending your message. Please try again.', false);
             })
             .finally(() => {
@@ -1117,10 +1106,9 @@ document.addEventListener('DOMContentLoaded', function() {
                     submitButton.innerHTML = originalButtonText;
                     submitButton.disabled = false;
                 }
-            });
-        });
+            });        });
     } else {
-        console.error('Contact form not found!');
+        // Silently handle missing contact form - could add user-friendly message if needed
     }
     
     function showContactMessage(message, isSuccess) {

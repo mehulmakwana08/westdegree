@@ -137,9 +137,7 @@
                     this.reset();
                 } else {
                     throw new Error(result.message || 'Registration failed');
-                }
-            } catch (error) {
-                console.error('Registration error:', error);
+                }            } catch (error) {
                 alertContainer.innerHTML = `
                     <div class="alert alert-danger" role="alert">
                         Registration failed: ${error.message}
