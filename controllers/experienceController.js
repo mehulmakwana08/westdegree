@@ -57,6 +57,22 @@ exports.getExperience = async (req, res) => {
     }
 };
 
+// Get single experience for editing
+exports.getExperienceForEdit = async (req, res) => {
+    try {
+        const experience = await Experience.findById(req.params.id);
+        if (!experience) {
+            logger.warn(`Experience not found for edit: ${req.params.id}`);
+            return res.status(404).json({ message: 'Experience not found' });
+        }
+        logger.info(`Experience fetched for edit: ${experience.jobTitle}`);
+        res.json(experience);
+    } catch (error) {
+        logger.error('Error fetching experience for edit:', error);
+        res.status(500).json({ message: 'Error fetching experience', error: error.message });
+    }
+};
+
 // Create new experience
 exports.createExperience = async (req, res) => {
     try {

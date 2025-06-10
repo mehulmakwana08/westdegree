@@ -332,6 +332,83 @@
                     </div>
                 </form>
             </div>
+        </div>    </div>
+
+    <!-- Edit Education Modal -->
+    <div class="modal fade" id="editEducationModal" tabindex="-1" aria-labelledby="editEducationModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editEducationModalLabel">Edit Education</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form id="editEducationForm" method="POST">
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="editDegree" class="form-label">Degree/Course</label>
+                                    <input type="text" class="form-control" id="editDegree" name="degree" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="editInstitution" class="form-label">Institution</label>
+                                    <input type="text" class="form-control" id="editInstitution" name="institution" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="editEduLocation" class="form-label">Location</label>
+                                    <input type="text" class="form-control" id="editEduLocation" name="location" required>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="mb-3">
+                                    <label for="editStartYear" class="form-label">Start Year</label>
+                                    <input type="text" class="form-control" id="editStartYear" name="startYear" required>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="mb-3">
+                                    <label for="editEndYear" class="form-label">End Year</label>
+                                    <input type="text" class="form-control" id="editEndYear" name="endYear" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="editGrade" class="form-label">Grade/CGPA (Optional)</label>
+                                    <input type="text" class="form-control" id="editGrade" name="grade">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="editEduOrder" class="form-label">Display Order</label>
+                                    <input type="number" class="form-control" id="editEduOrder" name="order" min="1">
+                                </div>
+                            </div>
+                            <div class="col-md-12">
+                                <div class="mb-3">
+                                    <label for="editEduDescription" class="form-label">Description (Optional)</label>
+                                    <textarea class="form-control" id="editEduDescription" name="description" rows="3"></textarea>
+                                </div>
+                            </div>
+                            <div class="col-md-12">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="editEduActive" name="isActive">
+                                    <label class="form-check-label" for="editEduActive">
+                                        Active
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Update Education</button>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
 
@@ -347,9 +424,36 @@
         }, 5000);
 
         // Edit education function
-        function editEducation(educationId) {
-            // You can implement edit functionality here
-            alert('Edit functionality not implemented yet');
+        async function editEducation(educationId) {
+            try {
+                const response = await fetch(`/api/education/${educationId}/edit`);
+                const education = await response.json();
+                
+                if (response.ok) {
+                    // Populate edit form
+                    document.getElementById('editDegree').value = education.degree;
+                    document.getElementById('editInstitution').value = education.institution;
+                    document.getElementById('editEduLocation').value = education.location;
+                    document.getElementById('editStartYear').value = education.startYear;
+                    document.getElementById('editEndYear').value = education.endYear;
+                    document.getElementById('editGrade').value = education.grade || '';
+                    document.getElementById('editEduOrder').value = education.order || 1;
+                    document.getElementById('editEduDescription').value = education.description || '';
+                    document.getElementById('editEduActive').checked = education.isActive;
+                    
+                    // Set form action
+                    document.getElementById('editEducationForm').action = `/admin/education/${educationId}/update`;
+                    
+                    // Show modal
+                    const editModal = new bootstrap.Modal(document.getElementById('editEducationModal'));
+                    editModal.show();
+                } else {
+                    alert('Error loading education details: ' + education.message);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error loading education details');
+            }
         }
     </script>
 </body>

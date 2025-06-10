@@ -324,6 +324,77 @@
                     </div>
                 </form>
             </div>
+        </div>    </div>
+
+    <!-- Edit Experience Modal -->
+    <div class="modal fade" id="editExperienceModal" tabindex="-1" aria-labelledby="editExperienceModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editExperienceModalLabel">Edit Experience</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form id="editExperienceForm" method="POST">
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="editJobTitle" class="form-label">Job Title</label>
+                                    <input type="text" class="form-control" id="editJobTitle" name="jobTitle" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="editCompany" class="form-label">Company</label>
+                                    <input type="text" class="form-control" id="editCompany" name="company" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="editLocation" class="form-label">Location</label>
+                                    <input type="text" class="form-control" id="editLocation" name="location" required>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="mb-3">
+                                    <label for="editStartDate" class="form-label">Start Date</label>
+                                    <input type="text" class="form-control" id="editStartDate" name="startDate" required>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="mb-3">
+                                    <label for="editEndDate" class="form-label">End Date</label>
+                                    <input type="text" class="form-control" id="editEndDate" name="endDate">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="editOrder" class="form-label">Display Order</label>
+                                    <input type="number" class="form-control" id="editOrder" name="order" min="1">
+                                </div>
+                            </div>
+                            <div class="col-md-12">
+                                <div class="mb-3">
+                                    <label for="editDescription" class="form-label">Description (Optional)</label>
+                                    <textarea class="form-control" id="editDescription" name="description" rows="3"></textarea>
+                                </div>
+                            </div>
+                            <div class="col-md-12">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="editIsActive" name="isActive">
+                                    <label class="form-check-label" for="editIsActive">
+                                        Active
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Update Experience</button>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
 
@@ -339,9 +410,35 @@
         }, 5000);
 
         // Edit experience function
-        function editExperience(experienceId) {
-            // You can implement edit functionality here
-            alert('Edit functionality not implemented yet');
+        async function editExperience(experienceId) {
+            try {
+                const response = await fetch(`/api/experience/${experienceId}/edit`);
+                const experience = await response.json();
+                
+                if (response.ok) {
+                    // Populate edit form
+                    document.getElementById('editJobTitle').value = experience.jobTitle;
+                    document.getElementById('editCompany').value = experience.company;
+                    document.getElementById('editLocation').value = experience.location;
+                    document.getElementById('editStartDate').value = experience.startDate;
+                    document.getElementById('editEndDate').value = experience.endDate || '';
+                    document.getElementById('editOrder').value = experience.order || 1;
+                    document.getElementById('editDescription').value = experience.description || '';
+                    document.getElementById('editIsActive').checked = experience.isActive;
+                    
+                    // Set form action
+                    document.getElementById('editExperienceForm').action = `/admin/experience/${experienceId}/update`;
+                    
+                    // Show modal
+                    const editModal = new bootstrap.Modal(document.getElementById('editExperienceModal'));
+                    editModal.show();
+                } else {
+                    alert('Error loading experience details: ' + experience.message);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error loading experience details');
+            }
         }
     </script>
 </body>

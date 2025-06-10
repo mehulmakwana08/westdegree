@@ -12,5 +12,6 @@ router.post('/admin/experience/:id/delete', isAuthenticated, experienceControlle
 // API routes
 router.get('/api/experience', experienceController.getAllExperiences);
 router.get('/api/experience/:id', experienceController.getExperience);
+router.get('/api/experience/:id/edit', experienceController.getExperienceForEdit);
 
 module.exports = router;

@@ -12,5 +12,6 @@ router.post('/admin/education/:id/delete', isAuthenticated, educationController.
 // API routes
 router.get('/api/education', educationController.getAllEducation);
 router.get('/api/education/:id', educationController.getEducation);
+router.get('/api/education/:id/edit', educationController.getEducationForEdit);
 
 module.exports = router;

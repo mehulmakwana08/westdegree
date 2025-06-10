@@ -57,6 +57,22 @@ exports.getEducation = async (req, res) => {
     }
 };
 
+// Get single education for editing
+exports.getEducationForEdit = async (req, res) => {
+    try {
+        const education = await Education.findById(req.params.id);
+        if (!education) {
+            logger.warn(`Education not found for edit: ${req.params.id}`);
+            return res.status(404).json({ message: 'Education not found' });
+        }
+        logger.info(`Education fetched for edit: ${education.degree}`);
+        res.json(education);
+    } catch (error) {
+        logger.error('Error fetching education for edit:', error);
+        res.status(500).json({ message: 'Error fetching education', error: error.message });
+    }
+};
+
 // Create new education
 exports.createEducation = async (req, res) => {
     try {
