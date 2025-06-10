@@ -204,8 +204,7 @@
                             <h2 class="section-title wow fadeInUp" data-wow-delay=".3s">My Recent Works</h2>
                             <p class=" wow fadeInUp" data-wow-delay=".4s">We put your ideas and thus your wishes in the
                                 form of a unique web project that inspires
-                                you
-                                and you customers.</p>
+                                you and you customers.</p>
                         </div>
                     </div>
                 </div>
@@ -217,7 +216,9 @@
                                 <button data-filter="*" class="active">All</button>
                                 <button data-filter=".uxui">UX/UI</button>
                                 <button data-filter=".branding">Branding</button>
-                                <button data-filter=".mobile-app">Apps</button>
+                                <button data-filter=".mobile-app">Mobile App</button>
+                                <button data-filter=".web-design">Web Design</button>
+                                <button data-filter=".graphics">Graphics</button>
                                 <div class="active-bg"></div>
                             </div>
                         </div>
@@ -225,54 +226,37 @@
                         <div class="portfolio-box wow fadeInUp" data-wow-delay=".6s">
                             <div class="portfolio-sizer"></div>
                             <div class="gutter-sizer"></div>
-                            <div class="portfolio-item branding">
-                                <div class="image-box">
-                                    <img src="assets/img/services/WhatsApp Image 2024-07-08 at 18.55.08_3570d6f0.jpg" alt="">
+                            
+                            <% if (portfolios && portfolios.length > 0) { %>
+                                <% portfolios.forEach((portfolio, index) => { %>
+                                    <div class="portfolio-item <%= portfolio.category %>">
+                                        <div class="image-box">
+                                            <img src="<%= portfolio.image %>" alt="<%= portfolio.title %>">
+                                        </div>
+                                        <div class="content-box">
+                                            <h3 class="portfolio-title"><%= portfolio.title %></h3>
+                                            <p><%= portfolio.shortDescription %></p>
+                                            <i class="flaticon-up-right-arrow"></i>
+                                            <button data-mfp-src="#portfolio-wrapper-<%= portfolio._id %>"
+                                                class="portfolio-link modal-popup"></button>
+                                        </div>
+                                    </div>
+                                <% }) %>
+                            <% } else { %>
+                                <!-- Default portfolio items if none exist in database -->
+                                <div class="portfolio-item branding">
+                                    <div class="image-box">
+                                        <img src="assets/img/services/WhatsApp Image 2024-07-08 at 18.55.08_3570d6f0.jpg" alt="">
+                                    </div>
+                                    <div class="content-box">
+                                        <h3 class="portfolio-title">Sample Project</h3>
+                                        <p>Project was about precision and information.</p>
+                                        <i class="flaticon-up-right-arrow"></i>
+                                        <button data-mfp-src="#portfolio-wrapper"
+                                            class="portfolio-link modal-popup"></button>
+                                    </div>
                                 </div>
-                                <div class="content-box">
-                                    <h3 class="portfolio-title">Deloitte</h3>
-                                    <p>Project was about precision and information.</p>
-                                    <i class="flaticon-up-right-arrow"></i>
-                                    <button data-mfp-src="#portfolio-wrapper"
-                                        class="portfolio-link modal-popup"></button>
-                                </div>
-                            </div>
-                            <div class="portfolio-item uxui">
-                                <div class="image-box">
-                                    <img src="assets/img/services/WhatsApp Image 2024-07-08 at 18.55.08_3570d6f0.jpg" alt="">
-                                </div>
-                                <div class="content-box">
-                                    <h3 class="portfolio-title">New Age</h3>
-                                    <p>Project was about precision and information.</p>
-                                    <i class="flaticon-up-right-arrow"></i>
-                                    <button data-mfp-src="#portfolio-wrapper"
-                                        class="portfolio-link modal-popup"></button>
-                                </div>
-                            </div>
-                            <div class="portfolio-item mobile-app">
-                                <div class="image-box">
-                                    <img src="assets/img/services/bhuda purnima.jpg" alt="">
-                                </div>
-                                <div class="content-box">
-                                    <h3 class="portfolio-title">Sebastian</h3>
-                                    <p>Project was about precision and information.</p>
-                                    <i class="flaticon-up-right-arrow"></i>
-                                    <button data-mfp-src="#portfolio-wrapper"
-                                        class="portfolio-link modal-popup"></button>
-                                </div>
-                            </div>
-                            <div class="portfolio-item branding">
-                                <div class="image-box">
-                                    <img src="assets/img/services/father day.jpg" alt="">
-                                </div>
-                                <div class="content-box">
-                                    <h3 class="portfolio-title">Mochnix</h3>
-                                    <p>Project was about precision and information.</p>
-                                    <i class="flaticon-up-right-arrow"></i>
-                                    <button data-mfp-src="#portfolio-wrapper"
-                                        class="portfolio-link modal-popup"></button>
-                                </div>
-                            </div>
+                            <% } %>
                         </div>
                     </div>
                 </div>
@@ -280,69 +264,146 @@
         </section>
         <!-- PORTFOLIO SECTION END -->
 
-        <!-- start: Portfolio Popup -->
-        <div id="portfolio-wrapper" class="popup_content_area zoom-anim-dialog mfp-hide">
-            <div class="popup_modal_img">
-                <img src="assets/img/services/father day.jpg" alt="">
-            </div>
+        <!-- Portfolio Popups -->
+        <% if (portfolios && portfolios.length > 0) { %>
+            <% portfolios.forEach(portfolio => { %>
+                <div id="portfolio-wrapper-<%= portfolio._id %>" class="popup_content_area zoom-anim-dialog mfp-hide">
+                    <div class="popup_modal_img">
+                        <img src="<%= portfolio.image %>" alt="<%= portfolio.title %>">
+                    </div>
 
-            <div class="popup_modal_content">
-                <div class="portfolio_info">
-                    <div class="portfolio_info_text">
-                        <h2 class="title">DStudio</h2>
-                        <div class="desc">
-                            <p>They are was greater open above shelter lets itself under appear sixth open gathering
-                                made
-                                upon can't own above midst gathering gathered he one us saying can't divide.</p>
+                    <div class="popup_modal_content">
+                        <div class="portfolio_info">
+                            <div class="portfolio_info_text">
+                                <h2 class="title"><%= portfolio.title %></h2>
+                                <div class="desc">
+                                    <p><%= portfolio.longDescription %></p>
+                                </div>
+                            </div>
+                            <div class="portfolio_info_items">
+                                <div class="info_item">
+                                    <span class="key">Category</span>
+                                    <span class="value"><%= portfolio.category.toUpperCase() %></span>
+                                </div>
+                                <div class="info_item">
+                                    <span class="key">Date</span>
+                                    <span class="value"><%= new Date(portfolio.createdAt).toLocaleDateString() %></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <% if (portfolio.galleryImages && portfolio.galleryImages.length > 0) { %>
+                            <div class="portfolio_gallery owl-carousel">
+                                <% portfolio.galleryImages.forEach(galleryImage => { %>
+                                    <div class="gallery_item">
+                                        <img src="<%= galleryImage %>" alt="<%= portfolio.title %> Gallery">
+                                    </div>
+                                <% }) %>
+                            </div>
+                        <% } %>
+
+                        <div class="portfolio_description">
+                            <div class="title">Project Approach</div>
+                            <div class="desc">
+                                <p><%= portfolio.longDescription %></p>
+                            </div>
+                        </div>
+                        
+                        <div class="portfolio_navigation">
+                            <div class="navigation_item prev-project">
+                                <a href="#" class="project">
+                                    <i class="fal fa-arrow-left"></i>
+                                    <div class="nav_project">
+                                        <div class="label">Previous Project</div>
+                                        <h3 class="title">Sebastian</h3>
+                                    </div>
+                                </a>
+                            </div>
+
+                            <div class="navigation_item next-project">
+                                <a href="#" class="project">
+                                    <div class="nav_project">
+                                        <div class="label">Next Project</div>
+                                        <h3 class="title">Qwillo</h3>
+                                    </div>
+                                    <i class="fal fa-arrow-right"></i>
+                                </a>
+                            </div>
                         </div>
                     </div>
                 </div>
-
-                <div class="portfolio_gallery owl-carousel">
-                    <div class="gallery_item">
-                        <img src="assets/img/services/bhuda purnima.jpg" alt="">
-                    </div>
-                    <div class="gallery_item">
-                        <img src="assets/img/services/Gujaratfounfation.jpg" alt="">
-                    </div>
-                    <div class="gallery_item">
-                        <img src="assets/img/services/father day.jpg" alt="">
-                    </div>
+            <% }) %>
+        <% } else { %>
+            <!-- Default Portfolio Popup -->
+            <div id="portfolio-wrapper" class="popup_content_area zoom-anim-dialog mfp-hide">
+                <div class="popup_modal_img">
+                    <img src="assets/img/services/father day.jpg" alt="">
                 </div>
 
-                <div class="portfolio_description">
-                    <h2 class="title">Project Description</h2>
-                    <div class="desc">
-                        <p>The goal is there are many variations of passages of Lorem Ipsum available, but the majority
-                            have
-                            suffered alteration in some form, by injected humour, or randomised words which don't look
-                            even
-                            slightly believable.</p>
-                    </div>
-                </div>
-                <div class="portfolio_navigation">
-                    <div class="navigation_item prev-project">
-                        <a href="#" class="project">
-                            <i class="fal fa-arrow-left"></i>
-                            <div class="nav_project">
-                                <div class="label">Previous Project</div>
-                                <h3 class="title">Sebastian</h3>
+                <div class="popup_modal_content">
+                    <div class="portfolio_info">
+                        <div class="portfolio_info_text">
+                            <h2 class="title">Sample Project</h2>
+                            <div class="desc">
+                                <p>This is a sample project description. Add your portfolio items through the admin panel to see them here.</p>
                             </div>
-                        </a>
+                        </div>
+                        <div class="portfolio_info_items">
+                            <div class="info_item">
+                                <span class="key">Category</span>
+                                <span class="value">BRANDING</span>
+                            </div>
+                            <div class="info_item">
+                                <span class="key">Date</span>
+                                <span class="value"><%= new Date().toLocaleDateString() %></span>
+                            </div>
+                        </div>
                     </div>
 
-                    <div class="navigation_item next-project">
-                        <a href="#" class="project">
-                            <div class="nav_project">
-                                <div class="label">Next Project</div>
-                                <h3 class="title">Qwillo</h3>
-                            </div>
-                            <i class="fal fa-arrow-right"></i>
-                        </a>
+                    <div class="portfolio_gallery owl-carousel">
+                        <div class="gallery_item">
+                            <img src="assets/img/services/bhuda purnima.jpg" alt="">
+                        </div>
+                        <div class="gallery_item">
+                            <img src="assets/img/services/Gujaratfounfation.jpg" alt="">
+                        </div>
+                        <div class="gallery_item">
+                            <img src="assets/img/services/father day.jpg" alt="">
+                        </div>
+                    </div>
+
+                    <div class="portfolio_description">
+                        <div class="title">Project Description</div>
+                        <div class="desc">
+                            <p>This is a sample project. Please add your real portfolio items through the admin panel to display them here with proper descriptions and images.</p>
+                        </div>
+                    </div>
+
+                    <div class="portfolio_navigation">
+                        <div class="navigation_item prev-project">
+                            <a href="#" class="project">
+                                <i class="fal fa-arrow-left"></i>
+                                <div class="nav_project">
+                                    <div class="label">Previous Project</div>
+                                    <h3 class="title">Sebastian</h3>
+                                </div>
+                            </a>
+                        </div>
+
+                        <div class="navigation_item next-project">
+                            <a href="#" class="project">
+                                <div class="nav_project">
+                                    <div class="label">Next Project</div>
+                                    <h3 class="title">Qwillo</h3>
+                                </div>
+                                <i class="fal fa-arrow-right"></i>
+                            </a>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
+        <% } %>
+
         <!-- end: Portfolio Popup -->
 
         <!-- RESUME SECTION START -->

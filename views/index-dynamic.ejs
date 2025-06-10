@@ -197,12 +197,119 @@
                         </div>
                     </div>
                 </div>
+            </div>        <!-- SERVICES SECTION END -->
+
+        <!-- PORTFOLIO SECTION START -->
+        <section class="portfolio-section" id="works-section">
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="section-header text-center">
+                            <h2 class="section-title wow fadeInUp" data-wow-delay=".3s">My Recent Works</h2>
+                            <p class=" wow fadeInUp" data-wow-delay=".4s">We put your ideas and thus your wishes in the
+                                form of a unique web project that inspires
+                                you and you customers.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="portfolio-filter text-center wow fadeInUp" data-wow-delay=".5s">
+                            <div class="button-group filter-button-group">
+                                <button data-filter="*" class="active">All</button>
+                                <button data-filter=".uxui">UX/UI</button>
+                                <button data-filter=".branding">Branding</button>
+                                <button data-filter=".mobile-app">Mobile App</button>
+                                <button data-filter=".web-design">Web Design</button>
+                                <button data-filter=".graphics">Graphics</button>
+                                <div class="active-bg"></div>
+                            </div>
+                        </div>
+
+                        <div class="portfolio-box wow fadeInUp" data-wow-delay=".6s">
+                            <div class="portfolio-sizer"></div>
+                            <div class="gutter-sizer"></div>
+                            
+                            <% if (portfolios && portfolios.length > 0) { %>
+                                <% portfolios.forEach((portfolio, index) => { %>
+                                    <div class="portfolio-item <%= portfolio.category %>">
+                                        <div class="image-box">
+                                            <img src="<%= portfolio.image %>" alt="<%= portfolio.title %>">
+                                        </div>
+                                        <div class="content-box">
+                                            <h3 class="portfolio-title"><%= portfolio.title %></h3>
+                                            <p><%= portfolio.shortDescription %></p>
+                                            <i class="flaticon-up-right-arrow"></i>
+                                            <button data-mfp-src="#portfolio-wrapper-<%= portfolio._id %>"
+                                                class="portfolio-link modal-popup"></button>
+                                        </div>
+                                    </div>
+                                <% }) %>
+                            <% } else { %>
+                                <!-- Default portfolio items if none exist in database -->
+                                <div class="portfolio-item branding">
+                                    <div class="image-box">
+                                        <img src="assets/img/services/WhatsApp Image 2024-07-08 at 18.55.08_3570d6f0.jpg" alt="">
+                                    </div>
+                                    <div class="content-box">
+                                        <h3 class="portfolio-title">Sample Project</h3>
+                                        <p>Project was about precision and information.</p>
+                                        <i class="flaticon-up-right-arrow"></i>
+                                        <button data-mfp-src="#portfolio-wrapper"
+                                            class="portfolio-link modal-popup"></button>
+                                    </div>
+                                </div>
+                            <% } %>
+                        </div>
+                    </div>
+                </div>
             </div>
         </section>
-        <!-- SERVICES SECTION END -->
+        <!-- PORTFOLIO SECTION END -->
 
-        <!-- ...existing portfolio, resume, skills, testimonials, blog, contact sections... -->
-        
-    </main>
+        <!-- Portfolio Popups -->
+        <% if (portfolios && portfolios.length > 0) { %>
+            <% portfolios.forEach(portfolio => { %>
+                <div id="portfolio-wrapper-<%= portfolio._id %>" class="popup_content_area zoom-anim-dialog mfp-hide">
+                    <div class="popup_modal_img">
+                        <img src="<%= portfolio.image %>" alt="<%= portfolio.title %>">
+                    </div>
 
-    <%- include('partials/footer') %>
+                    <div class="popup_modal_content">
+                        <div class="portfolio_info">
+                            <div class="portfolio_info_text">
+                                <h2 class="title"><%= portfolio.title %></h2>                                <div class="desc">
+                                    <p><%= portfolio.longDescription %></p>
+                                </div>
+                            </div>
+                            <div class="portfolio_info_items">
+                                <div class="info_item">
+                                    <span class="key">Category</span>
+                                    <span class="value"><%= portfolio.category.toUpperCase() %></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <% if (portfolio.galleryImages && portfolio.galleryImages.length > 0) { %>
+                            <div class="portfolio_gallery owl-carousel">
+                                <% portfolio.galleryImages.forEach(galleryImage => { %>
+                                    <div class="gallery_item">
+                                        <img src="<%= galleryImage %>" alt="<%= portfolio.title %> Gallery">
+                                    </div>
+                                <% }) %>
+                            </div>
+                        <% } %>
+
+                        <div class="portfolio_description">
+                            <div class="title">Project Approach</div>
+                            <div class="desc">
+                                <p><%= portfolio.longDescription %></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            <% }) %>
+        <% } %>
+
+        <!-- RESUME SECTION START -->

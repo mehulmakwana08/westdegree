@@ -25,7 +25,9 @@ const uploadDirs = [
     'uploads/logos',
     'uploads/profiles', 
     'uploads/cvs',
-    'uploads/social-icons'
+    'uploads/social-icons',
+    'uploads/portfolio',
+    'uploads/portfolio/gallery'
 ];
 
 uploadDirs.forEach(dir => {
@@ -52,6 +54,7 @@ mongoose.connect(process.env.MONGODB_URI, {
 // Import routes
 const personalInfoRoutes = require('./routes/personalInfoRoutes');
 const servicesRoutes = require('./routes/servicesRoutes');
+const portfolioRoutes = require('./routes/portfolioRoutes');
 
 // Set up EJS as the template engine
 app.set('view engine', 'ejs');
@@ -86,20 +89,23 @@ const upload = multer({ storage: storage });
 // Import PersonalInfo model
 const PersonalInfo = require('./models/PersonalInfo');
 const Service = require('./models/Service');
+const Portfolio = require('./models/Portfolio');
 
 // Routes
 app.get('/', async (req, res) => {
     try {
         const personalInfo = await PersonalInfo.findOne();
         const services = await Service.find({ isActive: true }).sort({ order: 1, createdAt: 1 });
-        logger.info('Loading homepage with personal info and services');
+        const portfolios = await Portfolio.find({ isActive: true }).sort({ order: 1, createdAt: -1 });
+        logger.info('Loading homepage with personal info, services, and portfolios');
         
         res.render('index', {
             title: personalInfo ? `${personalInfo.name} - Personal Portfolio` : 'Personal Portfolio',
             pageTitle: 'Home',
             siteName: personalInfo ? personalInfo.name : 'Personal Portfolio',
             personalInfo: personalInfo || {},
-            services: services || []
+            services: services || [],
+            portfolios: portfolios || []
         });
     } catch (error) {
         logger.error('Error loading homepage:', error);
@@ -108,17 +114,38 @@ app.get('/', async (req, res) => {
             pageTitle: 'Home',
             siteName: 'Personal Portfolio',
             personalInfo: {},
-            services: []
+            services: [],
+            portfolios: []
         });
     }
 });
 
-app.get('/light', (req, res) => {
-    res.render('index-light', {
-        title: 'Gerold - Personal Portfolio (Light Mode)',
-        pageTitle: 'Home - Light Mode',
-        siteName: process.env.SITE_NAME || 'Gerold Portfolio'
-    });
+app.get('/dynamic', async (req, res) => {
+    try {
+        const personalInfo = await PersonalInfo.findOne();
+        const services = await Service.find({ isActive: true }).sort({ order: 1, createdAt: 1 });
+        const portfolios = await Portfolio.find({ isActive: true }).sort({ order: 1, createdAt: -1 });
+        logger.info('Loading dynamic homepage with personal info, services, and portfolios');
+        
+        res.render('index-dynamic', {
+            title: personalInfo ? `${personalInfo.name} - Personal Portfolio` : 'Personal Portfolio',
+            pageTitle: 'Home',
+            siteName: personalInfo ? personalInfo.name : 'Personal Portfolio',
+            personalInfo: personalInfo || {},
+            services: services || [],
+            portfolios: portfolios || []
+        });
+    } catch (error) {
+        logger.error('Error loading dynamic homepage:', error);
+        res.render('index-dynamic', {
+            title: 'Personal Portfolio',
+            pageTitle: 'Home',
+            siteName: 'Personal Portfolio',
+            personalInfo: {},
+            services: [],
+            portfolios: []
+        });
+    }
 });
 
 app.get('/blog', (req, res) => {
@@ -243,6 +270,7 @@ app.post('/upload', upload.single('file'), (req, res) => {
 // Use routes
 app.use('/', personalInfoRoutes);
 app.use('/', servicesRoutes);
+app.use('/', portfolioRoutes);
 
 // 404 handler
 app.get('*', async (req, res) => {
