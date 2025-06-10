@@ -355,9 +355,7 @@ Description: Gerold - Personal Portfolio HTML5 Template
 					$(this).html(countNumber);
 				});
 			});
-		}
-		// Form Validation
-		/* contact form */
+		}		// Form Validation		/* contact form */
 		if ($("#contact-form").length > 0) {
 			$("#contact-form").validate({
 				rules: {
@@ -366,44 +364,17 @@ Description: Gerold - Personal Portfolio HTML5 Template
 						required: true,
 						email: true,
 					},
+					conMessage: "required"
 				},
 
 				messages: {
 					conName: "Enter your name.",
 					conEmail: "Enter a valid email.",
+					conMessage: "Enter your message."
 				},
 				submitHandler: function (form) {
-					// start ajax request
-					$.ajax({
-						type: "POST",
-						url: "/contact",
-						data: $("#contact-form").serialize(),
-						cache: false,
-						beforeSend: function() {
-							// Disable submit button to prevent multiple submissions
-							$('#contact-form button[type="submit"]').prop('disabled', true).text('Sending...');
-						},
-						success: function (data) {
-							if (data.success) {
-								$("#message_sent").modal("show");
-								$("#contact-form").trigger("reset");
-							} else {
-								$("#message_fail").modal("show");
-							}
-						},
-						error: function(xhr, status, error) {
-							console.error('Contact form error:', error);
-							if (xhr.status === 429) {
-								alert('Too many requests. Please wait a moment before trying again.');
-							} else {
-								$("#message_fail").modal("show");
-							}
-						},
-						complete: function() {
-							// Re-enable submit button
-							$('#contact-form button[type="submit"]').prop('disabled', false).text('Send Message');
-						}
-					});
+					// Disable the jQuery validation submit - let our custom handler take over
+					return false;
 				},
 			});
 		}

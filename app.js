@@ -42,10 +42,7 @@ uploadDirs.forEach(dir => {
 });
 
 // Connect to MongoDB
-mongoose.connect(process.env.MONGODB_URI, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true
-})
+mongoose.connect(process.env.MONGODB_URI)
 .then(() => {
     logger.info('Connected to MongoDB Atlas');
     console.log('Connected to MongoDB Atlas');
@@ -70,8 +67,21 @@ app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
 // Middleware
-app.use(bodyParser.urlencoded({ extended: true }));
-app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true, limit: '10mb' }));
+app.use(bodyParser.json({ limit: '10mb' }));
+
+// Add CORS headers for AJAX requests
+app.use((req, res, next) => {
+    res.header('Access-Control-Allow-Origin', '*');
+    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
+    if (req.method === 'OPTIONS') {
+        res.sendStatus(200);
+    } else {
+        next();
+    }
+});
+
 // Serve static files from /assets URL
 app.use('/assets', express.static(path.join(__dirname, 'assets')));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
@@ -115,6 +125,20 @@ app.get('/', async (req, res) => {
         const skills = await Skill.find({ isActive: true }).sort({ order: 1, createdAt: 1 });
         const testimonials = await Testimonial.find({ isActive: true }).sort({ order: 1, createdAt: -1 });
         logger.info('Loading homepage with personal info, services, portfolios, experiences, education, and testimonials');
+        
+        // Check for contact form feedback
+        const contactStatus = req.query.contact;
+        let contactMessage = null;
+        let contactSuccess = false;
+        
+        if (contactStatus === 'success') {
+            contactMessage = 'Thank you for your message! We will get back to you soon.';
+            contactSuccess = true;
+        } else if (contactStatus === 'error') {
+            contactMessage = 'Sorry, there was an error sending your message. Please try again.';
+            contactSuccess = false;
+        }
+        
           res.render('index', {
             title: personalInfo ? `${personalInfo.name} - Personal Portfolio` : 'Personal Portfolio',
             pageTitle: 'Home',
@@ -124,7 +148,9 @@ app.get('/', async (req, res) => {
             experiences: experiences || [],
             education: education || [],
             skills: skills || [],
-            testimonials: testimonials || []
+            testimonials: testimonials || [],
+            contactMessage: contactMessage,
+            contactSuccess: contactSuccess
         });
     } catch (error) {
         logger.error('Error loading homepage:', error);
@@ -136,7 +162,9 @@ app.get('/', async (req, res) => {
             experiences: [],
             education: [],
             skills: [],
-            testimonials: []
+            testimonials: [],
+            contactMessage: null,
+            contactSuccess: false
         });
     }
 });
@@ -237,22 +265,76 @@ app.use('/admin/contacts', isAuthenticated);
 // Contact form handler
 app.post('/contact', async (req, res) => {
     try {
-        const { name, email, subject, message, conName, conLName, conEmail, conPhone, conService, conMessage } = req.body;
+        console.log('Contact form data received:', req.body);
+        console.log('Request headers:', {
+            'content-type': req.headers['content-type'],
+            'x-requested-with': req.headers['x-requested-with'],
+            'accept': req.headers.accept
+        });
         
-        // Handle both old and new form field names
-        const firstName = conName || name || req.body.firstName;
+        const { name, email, subject, message, conName, conLName, conEmail, conPhone, conService, conMessage } = req.body;
+          // Handle both old and new form field names
+        const firstName = conName || name || req.body.firstName || req.body.fullname || '';
         const lastName = conLName || req.body.lastName || '';
-        const contactEmail = conEmail || email;
-        const contactMessage = conMessage || message;
-        const phone = conPhone || req.body.phone || '';
-        const service = conService || req.body.service || '';
+        const contactEmail = conEmail || email || req.body.userEmail || '';
+        const contactMessage = conMessage || message || subject || req.body.userMessage || '';
+        const phone = conPhone || req.body.phone || req.body.userPhone || '';
+        const service = conService || req.body.service || req.body.userService || '';
+        
+        console.log('Processed form data:', {
+            firstName,
+            lastName,
+            contactEmail,
+            contactMessage,
+            phone,
+            service
+        });
+        
+        // Validation - check if we have the minimum required fields
+        if (!firstName.trim() || !contactEmail.trim() || !contactMessage.trim()) {
+            logger.warn('Contact form validation failed: missing required fields', {
+                firstName: !!firstName.trim(),
+                contactEmail: !!contactEmail.trim(),
+                contactMessage: !!contactMessage.trim(),
+                receivedData: req.body
+            });
+            
+            // Always return JSON for AJAX requests
+            if (req.headers['x-requested-with'] === 'XMLHttpRequest' || 
+                (req.headers.accept && req.headers.accept.includes('application/json'))) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'Name, email, and message are required fields.'
+                });
+            }
+            
+            return res.redirect('/?contact=error');
+        }
+        
+        // Email validation
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(contactEmail.trim())) {
+            logger.warn('Contact form validation failed: invalid email format', {
+                email: contactEmail
+            });
+            
+            if (req.headers['x-requested-with'] === 'XMLHttpRequest' || 
+                (req.headers.accept && req.headers.accept.includes('application/json'))) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'Please enter a valid email address.'
+                });
+            }
+            
+            return res.redirect('/?contact=error');
+        }
         
         logger.info(`Contact form submission from ${contactEmail}`);
 
         // Save to database
         const contact = new Contact({
             firstName: firstName.trim(),
-            lastName: lastName.trim(),
+            lastName: lastName.trim() || '',
             email: contactEmail.trim().toLowerCase(),
             phone: phone.trim(),
             service: service.trim(),
@@ -262,17 +344,33 @@ app.post('/contact', async (req, res) => {
         await contact.save();
         logger.info(`Contact saved to database: ${contact.firstName} ${contact.lastName} (${contact.email})`);
         
-        // Return success response (no email sending)
-        res.json({
-            success: true,
-            message: 'Message sent successfully!'
-        });
+        // Check if it's an AJAX request
+        if (req.headers['x-requested-with'] === 'XMLHttpRequest' || 
+            (req.headers.accept && req.headers.accept.includes('application/json'))) {
+            // AJAX request - return JSON
+            return res.json({
+                success: true,
+                message: 'Thank you for your message! We will get back to you soon.'
+            });
+        } else {
+            // Form submission - redirect with success parameter
+            return res.redirect('/?contact=success');
+        }
     } catch (error) {
         logger.error('Contact form error:', error);
-        res.status(500).json({
-            success: false,
-            message: 'Failed to send message. Please try again.'
-        });
+        
+        // Check if it's an AJAX request
+        if (req.headers['x-requested-with'] === 'XMLHttpRequest' || 
+            (req.headers.accept && req.headers.accept.includes('application/json'))) {
+            // AJAX request - return JSON error
+            return res.status(500).json({
+                success: false,
+                message: 'Failed to send message. Please try again.'
+            });
+        } else {
+            // Form submission - redirect with error parameter
+            return res.redirect('/?contact=error');
+        }
     }
 });
 

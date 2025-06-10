@@ -1,5 +1,24 @@
 <%- include('partials/header') %>
 
+<!-- Contact Form Feedback Messages -->
+<% if (typeof contactMessage !== 'undefined' && contactMessage) { %>
+    <div id="contactFeedback" class="alert alert-<%= contactSuccess ? 'success' : 'danger' %> alert-dismissible fade show" role="alert" style="position: fixed; top: 20px; right: 20px; z-index: 9999; max-width: 400px;">
+        <i class="fas fa-<%= contactSuccess ? 'check-circle' : 'exclamation-triangle' %>"></i>
+        <%= contactMessage %>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    <script>
+        // Auto-hide the message after 5 seconds
+        setTimeout(function() {
+            const alert = document.getElementById('contactFeedback');
+            if (alert) {
+                const bsAlert = new bootstrap.Alert(alert);
+                bsAlert.close();
+            }
+        }, 5000);
+    </script>
+<% } %>
+
 <body>
     <!-- Preloader Area Start -->
     <div class="preloader">
@@ -869,39 +888,33 @@
                                 <p>I design and code beautifully simple things and i love what i do. Just simple like
                                     that!
                                 </p>
-                            </div>
-
-                            <div class="tj-contact-form">
-                                <form id="contact-form">
+                            </div>                            <div class="tj-contact-form">
+                                <form id="contact-form" action="/contact" method="POST">
                                     <div class="row gx-3">
                                         <div class="col-sm-6">
                                             <div class="form_group">
-                                                <input type="text" name="conName" id="conName" placeholder="First name"
-                                                    autocomplete="off">
+                                                <input type="text" name="conName" id="conName" placeholder="First name" required>
                                             </div>
                                         </div>
                                         <div class="col-sm-6">
                                             <div class="form_group">
-                                                <input type="text" name="conLName" id="conLName" placeholder="Last name"
-                                                    autocomplete="off">
+                                                <input type="text" name="conLName" id="conLName" placeholder="Last name">
                                             </div>
                                         </div>
                                         <div class="col-sm-6">
                                             <div class="form_group">
-                                                <input type="email" name="conEmail" id="conEmail"
-                                                    placeholder="Email address" autocomplete="off">
+                                                <input type="email" name="conEmail" id="conEmail" placeholder="Email address" required>
                                             </div>
                                         </div>
                                         <div class="col-sm-6">
                                             <div class="form_group">
-                                                <input type="tel" name="conPhone" id="conPhone"
-                                                    placeholder="Phone number" autocomplete="off">
+                                                <input type="tel" name="conPhone" id="conPhone" placeholder="Phone number">
                                             </div>
                                         </div>
                                         <div class="col-12">
                                             <div class="form_group">
                                                 <select name="conService" id="conService" class="tj-nice-select">
-                                                    <option value="" selected disabled>Choose Service</option>
+                                                    <option value="">Choose Service</option>
                                                     <option value="braning">Branding Design</option>
                                                     <option value="web">Web Design</option>
                                                     <option value="uxui">UI/UX Design</option>
@@ -911,8 +924,7 @@
                                         </div>
                                         <div class="col-12">
                                             <div class="form_group">
-                                                <textarea name="conMessage" id="conMessage"
-                                                    placeholder="Message"></textarea>
+                                                <textarea name="conMessage" id="conMessage" placeholder="Message" required></textarea>
                                             </div>
                                         </div>
                                         <div class="col-12">
@@ -967,57 +979,184 @@
         <!-- CONTACT SECTION END -->
     </main>
 
-    <%- include('partials/footer') %>    <script>
-        // Function to open portfolio modal with specific ID
-        function openPortfolio(event, portfolioId) {
-            event.preventDefault();
-            
-            // Close any currently open modals
-            $.magnificPopup.close();
-            
-            // Small delay to ensure previous modal is fully closed
-            setTimeout(function() {
-                // Open the specified portfolio modal
-                $.magnificPopup.open({
-                    items: {
-                        src: '#portfolio-wrapper-' + portfolioId
-                    },
-                    type: 'inline',
-                    fixedContentPos: false,
-                    fixedBgPos: true,
-                    overflowY: 'auto',
-                    closeBtnInside: true,
-                    preloader: false,
-                    midClick: true,
-                    removalDelay: 300,
-                    mainClass: 'popup-mfp',
-                    callbacks: {
-                        open: function() {
-                            // Re-initialize navigation after opening
-                            console.log('Portfolio opened: ' + portfolioId);
-                        }
-                    }
-                });
-            }, 100);
-            
-            return false;
+    <!-- Success Message Modal -->
+    <div class="modal fade" id="message_sent" tabindex="-1" aria-labelledby="successModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header border-0">
+                    <h5 class="modal-title text-success" id="successModalLabel">
+                        <i class="fas fa-check-circle"></i> Message Sent Successfully!
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body text-center">
+                    <p class="mb-0">Thank you for your message! I'll get back to you as soon as possible.</p>
+                </div>
+                <div class="modal-footer border-0 justify-content-center">
+                    <button type="button" class="btn btn-success" data-bs-dismiss="modal">Great!</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Error Message Modal -->
+    <div class="modal fade" id="message_fail" tabindex="-1" aria-labelledby="errorModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header border-0">
+                    <h5 class="modal-title text-danger" id="errorModalLabel">
+                        <i class="fas fa-exclamation-triangle"></i> Message Failed
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body text-center">
+                    <p class="mb-0">Sorry, there was an error sending your message. Please try again or contact me directly.</p>
+                </div>
+                <div class="modal-footer border-0 justify-content-center">
+                    <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Try Again</button>
+                </div>
+            </div>
+        </div>
+    </div>    <!-- Contact Form Enhancement Script -->
+    <script>
+document.addEventListener('DOMContentLoaded', function() {
+    const contactForm = document.getElementById('contact-form');
+    
+    if (contactForm) {
+        console.log('Contact form found:', contactForm);
+        
+        // Remove any existing jQuery validation submit handler
+        if (typeof $ !== 'undefined') {
+            $(contactForm).off('submit');
         }
         
-        // Initialize magnific popup for portfolio items
-        $(document).ready(function() {
-            $('.modal-popup').magnificPopup({
-                type: 'inline',
-                fixedContentPos: false,
-                fixedBgPos: true,
-                overflowY: 'auto',
-                closeBtnInside: true,
-                preloader: false,
-                midClick: true,
-                removalDelay: 300,
-                mainClass: 'popup-mfp'
-            });
+        contactForm.addEventListener('submit', function(e) {
+            e.preventDefault(); // Prevent default form submission
+            console.log('Form submitted via JavaScript');
             
-            // Debug: Check if portfolios exist
-            console.log('Portfolio modals available:', $('.popup_content_area').length);
+            // Get form data using traditional method instead of FormData
+            const formElements = contactForm.elements;
+            const formData = {};
+            
+            // Extract all form data
+            for (let i = 0; i < formElements.length; i++) {
+                const element = formElements[i];
+                if (element.name && element.type !== 'submit') {
+                    formData[element.name] = element.value || '';
+                }
+            }
+            
+            // Debug: Log all form data
+            console.log('Form data being sent:', formData);
+            
+            // Validate required fields
+            if (!formData.conName || !formData.conEmail || !formData.conMessage) {
+                showContactMessage('Please fill in all required fields (Name, Email, and Message).', false);
+                return;
+            }
+            
+            // Email validation
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(formData.conEmail)) {
+                showContactMessage('Please enter a valid email address.', false);
+                return;
+            }
+            
+            const submitButton = contactForm.querySelector('button[type="submit"]');
+            const originalButtonText = submitButton ? submitButton.innerHTML : 'Send Message';
+            
+            if (submitButton) {
+                submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
+                submitButton.disabled = true;
+            }
+            
+            // Clear any existing messages
+            const existingAlert = document.getElementById('contactFeedback');
+            if (existingAlert) {
+                existingAlert.remove();
+            }
+            
+            // Send as URL-encoded form data
+            const urlEncodedData = Object.keys(formData)
+                .map(key => encodeURIComponent(key) + '=' + encodeURIComponent(formData[key]))
+                .join('&');
+            
+            fetch('/contact', {
+                method: 'POST',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: urlEncodedData
+            })
+            .then(response => {
+                console.log('Response status:', response.status);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('Contact form response:', data);
+                
+                if (data.success) {
+                    showContactMessage(data.message || 'Thank you for your message! We will get back to you soon.', true);
+                    contactForm.reset(); // Clear form on success
+                } else {
+                    showContactMessage(data.message || 'Failed to send message. Please try again.', false);
+                }
+            })
+            .catch(error => {
+                console.error('Contact form error:', error);
+                showContactMessage('An error occurred while sending your message. Please try again.', false);
+            })
+            .finally(() => {
+                // Reset button state
+                if (submitButton) {
+                    submitButton.innerHTML = originalButtonText;
+                    submitButton.disabled = false;
+                }
+            });
         });
-    </script>
+    } else {
+        console.error('Contact form not found!');
+    }
+    
+    function showContactMessage(message, isSuccess) {
+        // Remove any existing alerts first
+        const existingAlerts = document.querySelectorAll('#contactFeedback');
+        existingAlerts.forEach(alert => alert.remove());
+        
+        const alertDiv = document.createElement('div');
+        alertDiv.id = 'contactFeedback';
+        alertDiv.className = `alert alert-${isSuccess ? 'success' : 'danger'} alert-dismissible fade show`;
+        alertDiv.style.cssText = 'position: fixed; top: 20px; right: 20px; z-index: 9999; max-width: 400px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);';
+        alertDiv.innerHTML = `
+            <i class="fas fa-${isSuccess ? 'check-circle' : 'exclamation-triangle'} me-2"></i>
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        `;
+        
+        document.body.appendChild(alertDiv);
+        
+        // Auto-hide after 5 seconds
+        setTimeout(() => {
+            if (alertDiv && alertDiv.parentNode) {
+                try {
+                    if (typeof bootstrap !== 'undefined') {
+                        const bsAlert = new bootstrap.Alert(alertDiv);
+                        bsAlert.close();
+                    } else {
+                        alertDiv.remove();
+                    }
+                } catch (e) {
+                    alertDiv.remove();
+                }
+            }
+        }, 5000);
+    }
+});
+</script>
+
+    <%- include('partials/footer') %>

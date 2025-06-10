@@ -483,60 +483,125 @@
     <script>
         let currentContactId = null;
 
+        // Select all functionality
         function toggleSelectAll() {
-            const selectAll = document.getElementById('selectAll');
+            const selectAllCheckbox = document.getElementById('selectAll') || document.getElementById('selectAllHeader');
             const checkboxes = document.querySelectorAll('.contact-checkbox');
+            
             checkboxes.forEach(checkbox => {
-                checkbox.checked = selectAll.checked;
+                checkbox.checked = selectAllCheckbox.checked;
             });
         }
 
-        async function viewContact(id) {
-            try {
-                const response = await fetch(`/api/contacts/${id}`);
-                const contact = await response.json();
-                
-                currentContactId = id;
-                
-                const details = `
-                    <div class="row">
-                        <div class="col-md-6">
-                            <h6>Personal Information</h6>
-                            <p><strong>Name:</strong> ${contact.firstName} ${contact.lastName}</p>
-                            <p><strong>Email:</strong> <a href="mailto:${contact.email}">${contact.email}</a></p>
-                            ${contact.phone ? `<p><strong>Phone:</strong> <a href="tel:${contact.phone}">${contact.phone}</a></p>` : ''}
-                            ${contact.service ? `<p><strong>Service:</strong> <span class="badge bg-primary">${contact.service}</span></p>` : ''}
-                        </div>
-                        <div class="col-md-6">
-                            <h6>Message Details</h6>
-                            <p><strong>Date:</strong> ${new Date(contact.createdAt).toLocaleString()}</p>
-                            <p><strong>Status:</strong> 
-                                ${contact.isRead ? '<span class="badge bg-success">Read</span>' : '<span class="badge bg-warning">Unread</span>'}
-                                ${contact.replied ? '<span class="badge bg-info ms-1">Replied</span>' : ''}
-                            </p>
-                        </div>
-                        <div class="col-12">
-                            <h6>Message</h6>
-                            <div class="bg-light p-3 rounded">${contact.message}</div>
-                        </div>
-                        ${contact.notes ? `
-                            <div class="col-12 mt-3">
-                                <h6>Notes</h6>
-                                <div class="bg-light p-3 rounded">${contact.notes}</div>
-                            </div>
-                        ` : ''}
-                    </div>
-                `;
-                
-                document.getElementById('contactDetails').innerHTML = details;
-                document.getElementById('markReadBtn').style.display = contact.isRead ? 'none' : 'inline-block';
-                
-                const modal = new bootstrap.Modal(document.getElementById('contactModal'));
-                modal.show();
-            } catch (error) {
-                console.error('Error loading contact details:', error);
-                alert('Error loading contact details');
+        // Mark selected contacts as read
+        function markSelectedAsRead() {
+            const selectedCheckboxes = document.querySelectorAll('.contact-checkbox:checked');
+            const contactIds = Array.from(selectedCheckboxes).map(cb => cb.value);
+            
+            if (contactIds.length === 0) {
+                alert('Please select at least one contact.');
+                return;
             }
+            
+            if (confirm(`Mark ${contactIds.length} contact(s) as read?`)) {
+                fetch('/admin/contacts/mark-read', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ contactIds: contactIds })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.message) {
+                        alert(data.message);
+                        location.reload();
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('An error occurred while marking contacts as read.');
+                });
+            }
+        }
+        
+        // Delete selected contacts
+        function deleteSelected() {
+            const selectedCheckboxes = document.querySelectorAll('.contact-checkbox:checked');
+            const contactIds = Array.from(selectedCheckboxes).map(cb => cb.value);
+            
+            if (contactIds.length === 0) {
+                alert('Please select at least one contact to delete.');
+                return;
+            }
+            
+            if (confirm(`Are you sure you want to delete ${contactIds.length} contact(s)? This action cannot be undone.`)) {
+                fetch('/admin/contacts/bulk-delete', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({ contactIds: contactIds })
+                })
+                .then(response => {
+                    if (response.ok) {
+                        return response.json();
+                    } else {
+                        throw new Error('Failed to delete contacts');
+                    }
+                })
+                .then(data => {
+                    alert(data.message || `${data.deletedCount || contactIds.length} contacts deleted successfully`);
+                    location.reload();
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('An error occurred while deleting contacts.');
+                });
+            }
+        }
+
+        // View contact details
+        function viewContact(contactId) {
+            fetch(`/admin/contacts/${contactId}`)
+                .then(response => response.json())
+                .then(contact => {
+                    const modalContent = document.getElementById('contactDetails');
+                    modalContent.innerHTML = `
+                        <div class="row">
+                            <div class="col-md-6">
+                                <strong>Name:</strong> ${contact.firstName} ${contact.lastName}
+                            </div>
+                            <div class="col-md-6">
+                                <strong>Email:</strong> ${contact.email}
+                            </div>
+                            <div class="col-md-6">
+                                <strong>Phone:</strong> ${contact.phone || 'Not provided'}
+                            </div>
+                            <div class="col-md-6">
+                                <strong>Service:</strong> ${contact.service || 'Not specified'}
+                            </div>
+                            <div class="col-12 mt-3">
+                                <strong>Message:</strong>
+                                <p class="mt-2">${contact.message}</p>
+                            </div>
+                            <div class="col-md-6">
+                                <strong>Date:</strong> ${new Date(contact.createdAt).toLocaleString()}
+                            </div>
+                            <div class="col-md-6">
+                                <strong>Status:</strong> ${contact.isRead ? 'Read' : 'Unread'}
+                            </div>
+                        </div>
+                    `;
+                    
+                    const modal = new bootstrap.Modal(document.getElementById('contactModal'));
+                    modal.show();
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Error loading contact details.');
+                });
         }
 
         async function markAsRead(id) {
@@ -563,59 +628,6 @@
         async function markContactAsRead() {
             if (currentContactId) {
                 await markAsRead(currentContactId);
-            }
-        }
-
-        function markSelectedAsRead() {
-            const selected = Array.from(document.querySelectorAll('.contact-checkbox:checked')).map(cb => cb.value);
-            if (selected.length === 0) {
-                alert('Please select contacts to mark as read');
-                return;
-            }
-            
-            if (confirm(`Mark ${selected.length} contacts as read?`)) {
-                fetch('/admin/contacts/mark-read', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ contactIds: selected })
-                }).then(response => {
-                    if (response.ok) {
-                        location.reload();
-                    } else {
-                        alert('Error marking contacts as read');
-                    }
-                });
-            }
-        }        function deleteSelected() {
-            const selected = Array.from(document.querySelectorAll('.contact-checkbox:checked')).map(cb => cb.value);
-            if (selected.length === 0) {
-                alert('Please select contacts to delete');
-                return;
-            }
-            
-            if (confirm(`Delete ${selected.length} contacts? This action cannot be undone.`)) {
-                fetch('/admin/contacts/bulk-delete', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ contactIds: selected })
-                }).then(response => {
-                    if (response.ok) {
-                        location.reload();
-                    } else {
-                        response.json().then(data => {
-                            alert(data.message || 'Error deleting contacts');
-                        }).catch(() => {
-                            alert('Error deleting contacts');
-                        });
-                    }
-                }).catch(error => {
-                    console.error('Error deleting contacts:', error);
-                    alert('Error deleting contacts');
-                });
             }
         }
     </script>
