@@ -5,7 +5,7 @@ const { isAuthenticated } = require('../middleware/auth');
 
 // Admin routes (protected)
 router.get('/admin/contacts', isAuthenticated, contactsController.getAdminContacts);
-router.get('/admin/contacts/:id', isAuthenticated, contactsController.getContact);
+router.get('/admin/contacts/:id', isAuthenticated, contactsController.getAdminContact);
 router.post('/admin/contacts/:id/update', isAuthenticated, contactsController.updateContact);
 router.post('/admin/contacts/:id/delete', isAuthenticated, contactsController.deleteContact);
 router.post('/admin/contacts/mark-read', isAuthenticated, contactsController.markAsRead);

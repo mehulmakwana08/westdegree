@@ -560,12 +560,16 @@
                     alert('An error occurred while deleting contacts.');
                 });
             }
-        }
-
-        // View contact details
+        }        // View contact details
         function viewContact(contactId) {
-            fetch(`/admin/contacts/${contactId}`)
-                .then(response => response.json())
+            currentContactId = contactId;
+            fetch(`/api/contacts/${contactId}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Failed to fetch contact details');
+                    }
+                    return response.json();
+                })
                 .then(contact => {
                     const modalContent = document.getElementById('contactDetails');
                     modalContent.innerHTML = `

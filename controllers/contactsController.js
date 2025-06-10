@@ -330,3 +330,39 @@ exports.getContactStats = async (req, res) => {
         res.status(500).json({ message: 'Error fetching statistics', error: error.message });
     }
 };
+
+// Get single contact for admin view
+exports.getAdminContact = async (req, res) => {
+    try {
+        const contact = await Contact.findById(req.params.id);
+        if (!contact) {
+            logger.warn(`Contact not found: ${req.params.id}`);
+            return res.status(404).render('error', {
+                message: 'Contact not found',
+                error: { status: 404, stack: '' }
+            });
+        }
+        
+        // Mark as read when viewed
+        if (!contact.isRead) {
+            contact.isRead = true;
+            await contact.save();
+            logger.info(`Contact marked as read: ${contact._id}`);
+        }
+        
+        logger.info(`Contact viewed by admin: ${contact.firstName} ${contact.lastName}`);
+        res.render('admin/contact-view', {
+            title: 'View Contact - Admin',
+            contact,
+            success: req.query.success === 'true',
+            updated: req.query.updated === 'true',
+            errorMessage: req.query.error
+        });
+    } catch (error) {
+        logger.error('Error fetching contact for admin view:', error);
+        res.status(500).render('error', {
+            message: 'Error loading contact',
+            error: error
+        });
+    }
+};
