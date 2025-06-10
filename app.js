@@ -28,7 +28,10 @@ const uploadDirs = [
     'uploads/social-icons',
     'uploads/portfolio',
     'uploads/portfolio/gallery',
-    'uploads/skills'
+    'uploads/skills',
+    'uploads/testimonials',
+    'uploads/testimonials/clients',
+    'uploads/testimonials/logos'
 ];
 
 uploadDirs.forEach(dir => {
@@ -59,6 +62,8 @@ const portfolioRoutes = require('./routes/portfolioRoutes');
 const experienceRoutes = require('./routes/experienceRoutes');
 const educationRoutes = require('./routes/educationRoutes');
 const skillsRoutes = require('./routes/skillsRoutes');
+const testimonialsRoutes = require('./routes/testimonialsRoutes');
+const contactsRoutes = require('./routes/contactsRoutes');
 
 // Set up EJS as the template engine
 app.set('view engine', 'ejs');
@@ -97,6 +102,8 @@ const Portfolio = require('./models/Portfolio');
 const Experience = require('./models/Experience');
 const Education = require('./models/Education');
 const Skill = require('./models/Skill');
+const Testimonial = require('./models/Testimonial');
+const Contact = require('./models/Contact');
 
 // Routes
 app.get('/', async (req, res) => {
@@ -106,17 +113,18 @@ app.get('/', async (req, res) => {
         const experiences = await Experience.find({ isActive: true }).sort({ order: 1, startDate: -1 });
         const education = await Education.find({ isActive: true }).sort({ order: 1, endYear: -1 });
         const skills = await Skill.find({ isActive: true }).sort({ order: 1, createdAt: 1 });
-        logger.info('Loading homepage with personal info, services, portfolios, experiences, and education');
+        const testimonials = await Testimonial.find({ isActive: true }).sort({ order: 1, createdAt: -1 });
+        logger.info('Loading homepage with personal info, services, portfolios, experiences, education, and testimonials');
           res.render('index', {
             title: personalInfo ? `${personalInfo.name} - Personal Portfolio` : 'Personal Portfolio',
             pageTitle: 'Home',
             siteName: personalInfo ? personalInfo.name : 'Personal Portfolio',
             personalInfo: personalInfo || {},
-            services: services || [],
-            portfolios: portfolios || [],
+            services: services || [],            portfolios: portfolios || [],
             experiences: experiences || [],
             education: education || [],
-            skills: skills || []
+            skills: skills || [],
+            testimonials: testimonials || []
         });
     } catch (error) {
         logger.error('Error loading homepage:', error);
@@ -124,11 +132,11 @@ app.get('/', async (req, res) => {
             title: 'Personal Portfolio',
             pageTitle: 'Home',
             siteName: 'Personal Portfolio',            personalInfo: {},
-            services: [],
-            portfolios: [],
+            services: [],            portfolios: [],
             experiences: [],
             education: [],
-            skills: []
+            skills: [],
+            testimonials: []
         });
     }
 });
@@ -229,43 +237,42 @@ app.use('/admin/contacts', isAuthenticated);
 // Contact form handler
 app.post('/contact', async (req, res) => {
     try {
-        const { name, email, subject, message } = req.body;
-        logger.info(`Contact form submission from ${email}`);
+        const { name, email, subject, message, conName, conLName, conEmail, conPhone, conService, conMessage } = req.body;
+        
+        // Handle both old and new form field names
+        const firstName = conName || name || req.body.firstName;
+        const lastName = conLName || req.body.lastName || '';
+        const contactEmail = conEmail || email;
+        const contactMessage = conMessage || message;
+        const phone = conPhone || req.body.phone || '';
+        const service = conService || req.body.service || '';
+        
+        logger.info(`Contact form submission from ${contactEmail}`);
 
-        // Create nodemailer transporter
-        const transporter = nodemailer.createTransporter({
-            host: process.env.EMAIL_HOST || 'smtp.gmail.com',
-            port: process.env.EMAIL_PORT || 587,
-            secure: false,
-            auth: {
-                user: process.env.EMAIL_USER,
-                pass: process.env.EMAIL_PASS
-            }
+        // Save to database
+        const contact = new Contact({
+            firstName: firstName.trim(),
+            lastName: lastName.trim(),
+            email: contactEmail.trim().toLowerCase(),
+            phone: phone.trim(),
+            service: service.trim(),
+            message: contactMessage.trim()
         });
-
-        // Email options
-        const mailOptions = {
-            from: process.env.EMAIL_USER,
-            to: process.env.CONTACT_EMAIL || process.env.EMAIL_USER,
-            subject: `Contact Form: ${subject}`,
-            html: `
-                <h3>New Contact Form Submission</h3>
-                <p><strong>Name:</strong> ${name}</p>
-                <p><strong>Email:</strong> ${email}</p>
-                <p><strong>Subject:</strong> ${subject}</p>
-                <p><strong>Message:</strong></p>
-                <p>${message}</p>
-            `
-        };
-
-        // Send email
-        await transporter.sendMail(mailOptions);
-        logger.info(`Contact form email sent successfully for ${email}`);
-        res.json({ success: true, message: 'Message sent successfully!' });
+        
+        await contact.save();
+        logger.info(`Contact saved to database: ${contact.firstName} ${contact.lastName} (${contact.email})`);
+        
+        // Return success response (no email sending)
+        res.json({
+            success: true,
+            message: 'Message sent successfully!'
+        });
     } catch (error) {
         logger.error('Contact form error:', error);
-        console.error('Contact form error:', error);
-        res.json({ success: false, message: 'Failed to send message. Please try again.' });
+        res.status(500).json({
+            success: false,
+            message: 'Failed to send message. Please try again.'
+        });
     }
 });
 
@@ -287,6 +294,8 @@ app.use('/', portfolioRoutes);
 app.use('/', experienceRoutes);
 app.use('/', educationRoutes);
 app.use('/', skillsRoutes);
+app.use('/', testimonialsRoutes);
+app.use('/', contactsRoutes);
 
 // 404 handler
 app.get('*', async (req, res) => {

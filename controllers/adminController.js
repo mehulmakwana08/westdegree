@@ -12,18 +12,18 @@ exports.getDashboard = async (req, res) => {
             });
         }
 
-        logger.info(`Dashboard accessed by user: ${user.username}`);
-          // Get dashboard statistics
+        logger.info(`Dashboard accessed by user: ${user.username}`);        // Get dashboard statistics
         const PersonalInfo = require('../models/PersonalInfo');
         const Service = require('../models/Service');
         const Portfolio = require('../models/Portfolio');
         const Experience = require('../models/Experience');
         const Education = require('../models/Education');
         const Skill = require('../models/Skill');
+        const Contact = require('../models/Contact');
         
         const stats = {
-            totalContacts: 0, 
-            unreadContacts: 0,
+            totalContacts: await Contact.countDocuments() || 0, 
+            unreadContacts: await Contact.countDocuments({ isRead: false }) || 0,
             totalProjects: await Portfolio.countDocuments({ isActive: true }) || 0,
             totalBlogs: 0,
             totalServices: await Service.countDocuments({ isActive: true }) || 0,
@@ -32,7 +32,7 @@ exports.getDashboard = async (req, res) => {
             totalEducation: await Education.countDocuments({ isActive: true }) || 0
         };
 
-        const recentContacts = []; // You can implement fetching recent contacts
+        const recentContacts = await Contact.find().sort({ createdAt: -1 }).limit(5);
 
         logger.debug('Dashboard statistics loaded', { stats });
 
