@@ -55,6 +55,8 @@ mongoose.connect(process.env.MONGODB_URI, {
 const personalInfoRoutes = require('./routes/personalInfoRoutes');
 const servicesRoutes = require('./routes/servicesRoutes');
 const portfolioRoutes = require('./routes/portfolioRoutes');
+const experienceRoutes = require('./routes/experienceRoutes');
+const educationRoutes = require('./routes/educationRoutes');
 
 // Set up EJS as the template engine
 app.set('view engine', 'ejs');
@@ -90,6 +92,8 @@ const upload = multer({ storage: storage });
 const PersonalInfo = require('./models/PersonalInfo');
 const Service = require('./models/Service');
 const Portfolio = require('./models/Portfolio');
+const Experience = require('./models/Experience');
+const Education = require('./models/Education');
 
 // Routes
 app.get('/', async (req, res) => {
@@ -97,7 +101,9 @@ app.get('/', async (req, res) => {
         const personalInfo = await PersonalInfo.findOne();
         const services = await Service.find({ isActive: true }).sort({ order: 1, createdAt: 1 });
         const portfolios = await Portfolio.find({ isActive: true }).sort({ order: 1, createdAt: -1 });
-        logger.info('Loading homepage with personal info, services, and portfolios');
+        const experiences = await Experience.find({ isActive: true }).sort({ order: 1, startDate: -1 });
+        const education = await Education.find({ isActive: true }).sort({ order: 1, endYear: -1 });
+        logger.info('Loading homepage with personal info, services, portfolios, experiences, and education');
         
         res.render('index', {
             title: personalInfo ? `${personalInfo.name} - Personal Portfolio` : 'Personal Portfolio',
@@ -105,7 +111,9 @@ app.get('/', async (req, res) => {
             siteName: personalInfo ? personalInfo.name : 'Personal Portfolio',
             personalInfo: personalInfo || {},
             services: services || [],
-            portfolios: portfolios || []
+            portfolios: portfolios || [],
+            experiences: experiences || [],
+            education: education || []
         });
     } catch (error) {
         logger.error('Error loading homepage:', error);
@@ -115,7 +123,9 @@ app.get('/', async (req, res) => {
             siteName: 'Personal Portfolio',
             personalInfo: {},
             services: [],
-            portfolios: []
+            portfolios: [],
+            experiences: [],
+            education: []
         });
     }
 });
@@ -271,6 +281,8 @@ app.post('/upload', upload.single('file'), (req, res) => {
 app.use('/', personalInfoRoutes);
 app.use('/', servicesRoutes);
 app.use('/', portfolioRoutes);
+app.use('/', experienceRoutes);
+app.use('/', educationRoutes);
 
 // 404 handler
 app.get('*', async (req, res) => {

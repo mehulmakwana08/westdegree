@@ -439,34 +439,33 @@
                         </div>
 
                         <div class="resume-widget">
-                            <div class="resume-item wow fadeInLeft" data-wow-delay=".4s">
-                                <div class="time">
-                                    2023 - Present
+                            <% if (experiences && experiences.length > 0) { %>
+                                <% experiences.forEach((experience, index) => { %>
+                                    <div class="resume-item wow fadeInLeft" data-wow-delay=".<%= 4 + index %>s">
+                                        <div class="time">
+                                            <%= experience.startDate %> - <%= experience.endDate %>
+                                        </div>
+                                        <h3 class="resume-title"><%= experience.jobTitle %></h3>
+                                        <div class="institute">
+                                            <%= experience.company %> - <%= experience.location %>
+                                        </div>
+                                        <% if (experience.description) { %>
+                                            <p><%= experience.description %></p>
+                                        <% } %>
+                                    </div>
+                                <% }) %>
+                            <% } else { %>
+                                <!-- Default experience if none exist -->
+                                <div class="resume-item wow fadeInLeft" data-wow-delay=".4s">
+                                    <div class="time">
+                                        2023 - Present
+                                    </div>
+                                    <h3 class="resume-title">Graphic Designer</h3>
+                                    <div class="institute">
+                                        Company Name - Location
+                                    </div>
                                 </div>
-                                <h3 class="resume-title">Raapra Concept Factory 
-                                </h3>
-                                <div class="institute">
-                                    Rajkot, Gujarat
-                                </div>
-                            </div>
-                            <div class="resume-item wow fadeInLeft" data-wow-delay=".5s">
-                                <div class="time">
-                                    2021 - 2022
-                                </div>
-                                <h3 class="resume-title">Devweb Technology</h3>
-                                <div class="institute">
-                                    Rajkot, Gujarat
-                                </div>
-                            </div>
-                            <div class="resume-item wow fadeInLeft" data-wow-delay=".6s">
-                                <div class="time">
-                                    2020 - 2021
-                                </div>
-                                <h3 class="resume-title">Freelancer, Upwork, Fiverr</h3>
-                                <div class="institute">
-                                    Graphic Designer & 3D Animator
-                                </div>
-                            </div>
+                            <% } %>
                         </div>
                     </div>
 
@@ -476,33 +475,36 @@
                         </div>
 
                         <div class="resume-widget">
-                            <div class="resume-item wow fadeInRight" data-wow-delay=".5s">
-                                <div class="time">
-                                    2020 - 2023
+                            <% if (education && education.length > 0) { %>
+                                <% education.forEach((edu, index) => { %>
+                                    <div class="resume-item wow fadeInRight" data-wow-delay=".<%= 5 + index %>s">
+                                        <div class="time">
+                                            <%= edu.startYear %> - <%= edu.endYear %>
+                                        </div>
+                                        <h3 class="resume-title"><%= edu.degree %></h3>
+                                        <div class="institute">
+                                            <%= edu.institution %> - <%= edu.location %>
+                                        </div>
+                                        <% if (edu.grade) { %>
+                                            <p>Grade: <%= edu.grade %></p>
+                                        <% } %>
+                                        <% if (edu.description) { %>
+                                            <p><%= edu.description %></p>
+                                        <% } %>
+                                    </div>
+                                <% }) %>
+                            <% } else { %>
+                                <!-- Default education if none exist -->
+                                <div class="resume-item wow fadeInRight" data-wow-delay=".5s">
+                                    <div class="time">
+                                        2020 - 2023
+                                    </div>
+                                    <h3 class="resume-title">Bachelor Of Computer Application</h3>
+                                    <div class="institute">
+                                        College Name - Location
+                                    </div>
                                 </div>
-                                <h3 class="resume-title">Bachelor Of Computer Appplication</h3>
-                                <div class="institute">
-                                    T.N Rao College - Rajkot
-                                </div>
-                            </div>
-                            <div class="resume-item wow fadeInRight" data-wow-delay=".6s">
-                                <div class="time">
-                                    2019 - 2020
-                                </div>
-                                <h3 class="resume-title">H.S.C 12TH</h3>
-                                <div class="institute">
-                                    GYANDEEP VIDHYALAYA - Rajkot
-                                </div>
-                            </div>
-                            <div class="resume-item wow fadeInRight" data-wow-delay=".7s">
-                                <div class="time">
-                                    2017 - 2018
-                                </div>
-                                <h3 class="resume-title">S.S.C 10TH</h3>
-                                <div class="institute">
-                                    GYANDEEP VIDHYALAYA - Rajkot
-                                </div>
-                            </div>
+                            <% } %>
                         </div>
                     </div>
                 </div>
@@ -581,12 +583,13 @@
                                     <div class="number">40%</div>
                                 </div>
                                 <p>Autodesk Maya</p>
-                            </div>                            </div>
+                            </div> </div>
                         </div>
                     </div>
                 </div>
             </div>
         </section>
+        <!-- SKILLS SECTION END -->
         <!-- HERO SECTION END -->
     </main>
 <!-- TESTIMONIAL SECTION START -->
