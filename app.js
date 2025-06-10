@@ -3,6 +3,7 @@ const path = require('path');
 const dotenv = require('dotenv');
 const bodyParser = require('body-parser');
 const session = require('express-session');
+const MongoStore = require('connect-mongo');
 const multer = require('multer');
 const nodemailer = require('nodemailer');
 const mongoose = require('mongoose');
@@ -12,43 +13,74 @@ const adminController = require('./controllers/adminController');
 const bcrypt = require('bcryptjs');
 const logger = require('./utils/logger');
 
+// Conditionally require Cloudinary config
+let upload;
+try {
+    if (process.env.CLOUDINARY_CLOUD_NAME && process.env.CLOUDINARY_API_KEY) {
+        const { genericUpload } = require('./config/cloudinary');
+        upload = genericUpload;
+        logger.info('Using Cloudinary for file uploads');
+    } else {
+        // Fallback to local storage for development
+        const multer = require('multer');
+        const fs = require('fs');
+        
+        // Ensure upload directory exists
+        if (!fs.existsSync('uploads')) {
+            fs.mkdirSync('uploads', { recursive: true });
+        }
+        
+        const storage = multer.diskStorage({
+            destination: function (req, file, cb) {
+                cb(null, 'uploads/');
+            },
+            filename: function (req, file, cb) {
+                cb(null, Date.now() + '-' + file.originalname);
+            }
+        });
+        upload = multer({ storage: storage });
+        logger.info('Using local storage for file uploads (development mode)');
+    }
+} catch (error) {
+    logger.warn('Cloudinary configuration error, falling back to local storage:', error.message);
+    // Fallback configuration
+    const multer = require('multer');
+    const fs = require('fs');
+    
+    if (!fs.existsSync('uploads')) {
+        fs.mkdirSync('uploads', { recursive: true });
+    }
+    
+    const storage = multer.diskStorage({
+        destination: function (req, file, cb) {
+            cb(null, 'uploads/');
+        },
+        filename: function (req, file, cb) {
+            cb(null, Date.now() + '-' + file.originalname);
+        }
+    });
+    upload = multer({ storage: storage });
+}
+
 // Load environment variables
 dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Ensure upload directories exist
-const fs = require('fs');
-const uploadDirs = [
-    'uploads',
-    'uploads/logos',
-    'uploads/profiles', 
-    'uploads/cvs',
-    'uploads/social-icons',
-    'uploads/portfolio',
-    'uploads/portfolio/gallery',
-    'uploads/skills',
-    'uploads/testimonials',
-    'uploads/testimonials/clients',
-    'uploads/testimonials/logos'
-];
-
-uploadDirs.forEach(dir => {
-    if (!fs.existsSync(dir)) {
-        fs.mkdirSync(dir, { recursive: true });
-        logger.info(`Created directory: ${dir}`);
-    }
-});
-
 // Connect to MongoDB
-mongoose.connect(process.env.MONGODB_URI)
-.then(() => {
-    logger.info('Connected to MongoDB Atlas');
-})
-.catch(err => {
-    logger.error('MongoDB connection error:', err);
-});
+if (process.env.MONGODB_URI && process.env.MONGODB_URI !== 'your_mongodb_uri_here') {
+    mongoose.connect(process.env.MONGODB_URI)
+    .then(() => {
+        logger.info('Connected to MongoDB Atlas');
+    })
+    .catch(err => {
+        logger.error('MongoDB connection error:', err.message);
+        logger.warn('Application will continue without database functionality');
+    });
+} else {
+    logger.warn('MongoDB URI not configured. Database functionality will be disabled.');
+}
 
 // Import routes
 const personalInfoRoutes = require('./routes/personalInfoRoutes');
@@ -115,24 +147,37 @@ app.use((req, res, next) => {
 app.use('/assets', express.static(path.join(__dirname, 'assets')));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
-// Session configuration
-app.use(session({
+// Session configuration with MongoDB store
+const sessionConfig = {
     secret: process.env.SESSION_SECRET || 'gerold-portfolio-secret',
     resave: false,
-    saveUninitialized: true,
-    cookie: { secure: false } // Set to true in production with HTTPS
-}));
-
-// Configure multer for file uploads
-const storage = multer.diskStorage({
-    destination: function (req, file, cb) {
-        cb(null, 'uploads/');
-    },
-    filename: function (req, file, cb) {
-        cb(null, Date.now() + '-' + file.originalname);
+    saveUninitialized: false,
+    cookie: { 
+        secure: process.env.NODE_ENV === 'production', // Set to true in production with HTTPS
+        maxAge: 14 * 24 * 60 * 60 * 1000 // 14 days
     }
-});
-const upload = multer({ storage: storage });
+};
+
+// Add MongoDB session store if available
+if (process.env.MONGODB_URI && process.env.MONGODB_URI !== 'your_mongodb_uri_here') {
+    try {
+        sessionConfig.store = MongoStore.create({
+            mongoUrl: process.env.MONGODB_URI,
+            touchAfter: 24 * 3600, // lazy session update
+            ttl: 14 * 24 * 60 * 60 // 14 days
+        });
+        logger.info('Using MongoDB session store');
+    } catch (error) {
+        logger.warn('Failed to create MongoDB session store, using memory store:', error.message);
+    }
+} else {
+    logger.info('Using memory session store (development mode)');
+}
+
+app.use(session(sessionConfig));
+
+// Configure multer for file uploads with Cloudinary
+// Upload configuration is set above based on environment
 
 // Import PersonalInfo model
 const PersonalInfo = require('./models/PersonalInfo');
@@ -409,7 +454,13 @@ app.post('/contact', async (req, res) => {
 app.post('/upload', upload.single('file'), (req, res) => {
     if (req.file) {
         logger.info(`File uploaded successfully: ${req.file.filename}`);
-        res.json({ success: true, filename: req.file.filename, path: `/uploads/${req.file.filename}` });
+        // For Cloudinary, the file path is in req.file.path
+        res.json({ 
+            success: true, 
+            filename: req.file.filename || req.file.original_filename,
+            path: req.file.path || req.file.secure_url,
+            url: req.file.secure_url || req.file.path
+        });
     } else {
         logger.warn('File upload failed: No file provided');
         res.json({ success: false, message: 'No file uploaded' });

@@ -17,50 +17,50 @@ const logger = winston.createLogger({
         environment: process.env.NODE_ENV || 'development'
     },
     transports: [
-        // Write all logs with importance level of `error` or less to `error.log`
-        new winston.transports.File({
-            filename: 'logs/error.log',
-            level: 'error',
-            maxsize: 5242880, // 5MB
-            maxFiles: 5,
+        // Always add console transport
+        new winston.transports.Console({
             format: winston.format.combine(
-                winston.format.timestamp(),
-                winston.format.errors({ stack: true }),
-                winston.format.json()
-            )
-        }),
-        // Write all logs with importance level of `info` or less to `combined.log`
-        new winston.transports.File({
-            filename: 'logs/combined.log',
-            maxsize: 5242880, // 5MB
-            maxFiles: 5,
-            format: winston.format.combine(
-                winston.format.timestamp(),
-                winston.format.json()
+                winston.format.colorize(),
+                winston.format.simple(),
+                winston.format.printf(({ timestamp, level, message, ...meta }) => {
+                    return `${timestamp} [${level}]: ${message} ${Object.keys(meta).length ? JSON.stringify(meta, null, 2) : ''}`;
+                })
             )
         })
     ]
 });
 
-// If we're not in production then also log to the console
-// with format that's suitable for development
-if (process.env.NODE_ENV !== 'production') {
-    logger.add(new winston.transports.Console({
+// Add file transports only in non-serverless environments
+if (process.env.NODE_ENV !== 'production' || !process.env.VERCEL) {
+    // Create logs directory if it doesn't exist
+    const logsDir = path.join(__dirname, '..', 'logs');
+    
+    if (!fs.existsSync(logsDir)) {
+        fs.mkdirSync(logsDir, { recursive: true });
+    }
+
+    // Add file transports
+    logger.add(new winston.transports.File({
+        filename: 'logs/error.log',
+        level: 'error',
+        maxsize: 5242880, // 5MB
+        maxFiles: 5,
         format: winston.format.combine(
-            winston.format.colorize(),
-            winston.format.simple(),
-            winston.format.printf(({ timestamp, level, message, ...meta }) => {
-                return `${timestamp} [${level}]: ${message} ${Object.keys(meta).length ? JSON.stringify(meta, null, 2) : ''}`;
-            })
+            winston.format.timestamp(),
+            winston.format.errors({ stack: true }),
+            winston.format.json()
         )
     }));
-}
 
-// Create logs directory if it doesn't exist
-const logsDir = path.join(__dirname, '..', 'logs');
-
-if (!fs.existsSync(logsDir)) {
-    fs.mkdirSync(logsDir, { recursive: true });
+    logger.add(new winston.transports.File({
+        filename: 'logs/combined.log',
+        maxsize: 5242880, // 5MB
+        maxFiles: 5,
+        format: winston.format.combine(
+            winston.format.timestamp(),
+            winston.format.json()
+        )
+    }));
 }
 
 module.exports = logger;
