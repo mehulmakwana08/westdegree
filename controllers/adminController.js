@@ -13,13 +13,23 @@ exports.getDashboard = async (req, res) => {
         }
 
         logger.info(`Dashboard accessed by user: ${user.username}`);
+          // Get dashboard statistics
+        const PersonalInfo = require('../models/PersonalInfo');
+        const Service = require('../models/Service');
+        const Portfolio = require('../models/Portfolio');
+        const Experience = require('../models/Experience');
+        const Education = require('../models/Education');
+        const Skill = require('../models/Skill');
         
-        // Get dashboard statistics
         const stats = {
             totalContacts: 0, 
             unreadContacts: 0,
-            totalProjects: 0,
-            totalBlogs: 0
+            totalProjects: await Portfolio.countDocuments({ isActive: true }) || 0,
+            totalBlogs: 0,
+            totalServices: await Service.countDocuments({ isActive: true }) || 0,
+            totalSkills: await Skill.countDocuments({ isActive: true }) || 0,
+            totalExperience: await Experience.countDocuments({ isActive: true }) || 0,
+            totalEducation: await Education.countDocuments({ isActive: true }) || 0
         };
 
         const recentContacts = []; // You can implement fetching recent contacts

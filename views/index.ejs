@@ -513,7 +513,7 @@
         <!-- RESUME SECTION END -->
 
         <!-- SKILLS SECTION START -->
-        <section class="skills-section" id="skills-section">
+            <section class="skills-section" id="skills-section">
             <div class="container">
                 <div class="row">
                     <div class="col-md-12">
@@ -521,8 +521,7 @@
                             <h2 class="section-title wow fadeInUp" data-wow-delay=".3s">My Skills</h2>
                             <p class=" wow fadeInUp" data-wow-delay=".4s">We put your ideas and thus your wishes in the
                                 form of a unique web project that inspires
-                                you
-                                and you customers.</p>
+                                you and your customers.</p>
                         </div>
                     </div>
                 </div>
@@ -530,60 +529,83 @@
                 <div class="row">
                     <div class="col-md-12">
                         <div class="skills-widget d-flex flex-wrap justify-content-center align-items-center">
-                            <div class="skill-item wow fadeInUp" data-wow-delay=".3s">
-                                <div class="skill-inner">
-                                    <div class="icon-box">
-                                        <img src="assets/img/icons/PHOTOSHOP SVG.svg" alt="PHOTOSHOP">
+                            <% if (skills && skills.length > 0) { %>
+                                <% skills.forEach((skill, index) => { %>
+                                    <div class="skill-item wow fadeInUp" data-wow-delay=".<%= 3 + index %>s">
+                                        <div class="skill-inner">
+                                            <div class="icon-box">
+                                                <% if (skill.icon) { %>
+                                                    <% if (skill.icon.startsWith('fa')) { %>
+                                                        <i class="<%= skill.icon %> fa-3x"></i>
+                                                    <% } else { %>
+                                                        <img src="<%= skill.icon %>" alt="<%= skill.name %>">
+                                                    <% } %>
+                                                <% } else { %>
+                                                    <i class="fas fa-code fa-3x"></i>
+                                                <% } %>
+                                            </div>
+                                            <div class="number"><%= skill.percentage %>%</div>
+                                        </div>
+                                        <p><%= skill.name %></p>
                                     </div>
-                                    <div class="number">92%</div>
-                                </div>
-                                <p>Photoshop</p>
-                            </div>
-                            <div class="skill-item wow fadeInUp" data-wow-delay=".4s">
-                                <div class="skill-inner">
-                                    <div class="icon-box">
-                                        <img src="assets/img/icons/Adobe_Illustrator_CC_icon.svg" alt="Adobe_Illustrator">
+                                <% }) %>
+                            <% } else { %>
+                                <!-- Default skills if none are configured -->
+                                <div class="skill-item wow fadeInUp" data-wow-delay=".3s">
+                                    <div class="skill-inner">
+                                        <div class="icon-box">
+                                            <img src="assets/img/icons/PHOTOSHOP SVG.svg" alt="PHOTOSHOP">
+                                        </div>
+                                        <div class="number">92%</div>
                                     </div>
-                                    <div class="number">80%</div>
+                                    <p>Photoshop</p>
                                 </div>
-                                <p>Adobe Illustrator</p>
-                            </div>
-                            <div class="skill-item wow fadeInUp" data-wow-delay=".5s">
-                                <div class="skill-inner">
-                                    <div class="icon-box">
-                                        <img src="assets/img/icons/CORELDROW.svg" alt="">
+                                <div class="skill-item wow fadeInUp" data-wow-delay=".4s">
+                                    <div class="skill-inner">
+                                        <div class="icon-box">
+                                            <img src="assets/img/icons/Adobe_Illustrator_CC_icon.svg" alt="Adobe_Illustrator">
+                                        </div>
+                                        <div class="number">80%</div>
                                     </div>
-                                    <div class="number">85%</div>
+                                    <p>Adobe Illustrator</p>
                                 </div>
-                                <p>Coreldrow</p>
-                            </div>
-                            <div class="skill-item wow fadeInUp" data-wow-delay=".6s">
-                                <div class="skill-inner">
-                                    <div class="icon-box">
-                                        <img src="assets/img/icons/Adobe_After_Effects_CC_icon.svg" alt="">
+                                <div class="skill-item wow fadeInUp" data-wow-delay=".5s">
+                                    <div class="skill-inner">
+                                        <div class="icon-box">
+                                            <img src="assets/img/icons/CORELDROW.svg" alt="">
+                                        </div>
+                                        <div class="number">85%</div>
                                     </div>
-                                    <div class="number">60%</div>
+                                    <p>Coreldrow</p>
                                 </div>
-                                <p>Adobe After Effects</p>
-                            </div>
-                            <div class="skill-item wow fadeInUp" data-wow-delay=".7s">
-                                <div class="skill-inner">
-                                    <div class="icon-box">
-                                        <img src="assets/img/icons/Blender_logo_no_text.svg" alt="">
+                                <div class="skill-item wow fadeInUp" data-wow-delay=".6s">
+                                    <div class="skill-inner">
+                                        <div class="icon-box">
+                                            <img src="assets/img/icons/Adobe_After_Effects_CC_icon.svg" alt="">
+                                        </div>
+                                        <div class="number">60%</div>
                                     </div>
-                                    <div class="number">75%</div>
+                                    <p>Adobe After Effects</p>
                                 </div>
-                                <p>3D Blender</p>
-                            </div>
-                            <div class="skill-item wow fadeInUp" data-wow-delay=".8s">
-                                <div class="skill-inner">
-                                    <div class="icon-box">
-                                        <img src="assets/img/icons/maya-2017.svg" alt="">
+                                <div class="skill-item wow fadeInUp" data-wow-delay=".7s">
+                                    <div class="skill-inner">
+                                        <div class="icon-box">
+                                            <img src="assets/img/icons/Blender_logo_no_text.svg" alt="">
+                                        </div>
+                                        <div class="number">75%</div>
                                     </div>
-                                    <div class="number">40%</div>
+                                    <p>3D Blender</p>
                                 </div>
-                                <p>Autodesk Maya</p>
-                            </div> </div>
+                                <div class="skill-item wow fadeInUp" data-wow-delay=".8s">
+                                    <div class="skill-inner">
+                                        <div class="icon-box">
+                                            <img src="assets/img/icons/maya-2017.svg" alt="">
+                                        </div>
+                                        <div class="number">40%</div>
+                                    </div>
+                                    <p>Autodesk Maya</p>
+                                </div>
+                            <% } %>
                         </div>
                     </div>
                 </div>

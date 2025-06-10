@@ -27,7 +27,8 @@ const uploadDirs = [
     'uploads/cvs',
     'uploads/social-icons',
     'uploads/portfolio',
-    'uploads/portfolio/gallery'
+    'uploads/portfolio/gallery',
+    'uploads/skills'
 ];
 
 uploadDirs.forEach(dir => {
@@ -57,6 +58,7 @@ const servicesRoutes = require('./routes/servicesRoutes');
 const portfolioRoutes = require('./routes/portfolioRoutes');
 const experienceRoutes = require('./routes/experienceRoutes');
 const educationRoutes = require('./routes/educationRoutes');
+const skillsRoutes = require('./routes/skillsRoutes');
 
 // Set up EJS as the template engine
 app.set('view engine', 'ejs');
@@ -94,18 +96,18 @@ const Service = require('./models/Service');
 const Portfolio = require('./models/Portfolio');
 const Experience = require('./models/Experience');
 const Education = require('./models/Education');
+const Skill = require('./models/Skill');
 
 // Routes
 app.get('/', async (req, res) => {
     try {
-        const personalInfo = await PersonalInfo.findOne();
-        const services = await Service.find({ isActive: true }).sort({ order: 1, createdAt: 1 });
+        const personalInfo = await PersonalInfo.findOne();        const services = await Service.find({ isActive: true }).sort({ order: 1, createdAt: 1 });
         const portfolios = await Portfolio.find({ isActive: true }).sort({ order: 1, createdAt: -1 });
         const experiences = await Experience.find({ isActive: true }).sort({ order: 1, startDate: -1 });
         const education = await Education.find({ isActive: true }).sort({ order: 1, endYear: -1 });
+        const skills = await Skill.find({ isActive: true }).sort({ order: 1, createdAt: 1 });
         logger.info('Loading homepage with personal info, services, portfolios, experiences, and education');
-        
-        res.render('index', {
+          res.render('index', {
             title: personalInfo ? `${personalInfo.name} - Personal Portfolio` : 'Personal Portfolio',
             pageTitle: 'Home',
             siteName: personalInfo ? personalInfo.name : 'Personal Portfolio',
@@ -113,19 +115,20 @@ app.get('/', async (req, res) => {
             services: services || [],
             portfolios: portfolios || [],
             experiences: experiences || [],
-            education: education || []
+            education: education || [],
+            skills: skills || []
         });
     } catch (error) {
         logger.error('Error loading homepage:', error);
         res.render('index', {
             title: 'Personal Portfolio',
             pageTitle: 'Home',
-            siteName: 'Personal Portfolio',
-            personalInfo: {},
+            siteName: 'Personal Portfolio',            personalInfo: {},
             services: [],
             portfolios: [],
             experiences: [],
-            education: []
+            education: [],
+            skills: []
         });
     }
 });
@@ -283,6 +286,7 @@ app.use('/', servicesRoutes);
 app.use('/', portfolioRoutes);
 app.use('/', experienceRoutes);
 app.use('/', educationRoutes);
+app.use('/', skillsRoutes);
 
 // 404 handler
 app.get('*', async (req, res) => {
