@@ -72,7 +72,7 @@ EMAIL_USER=your_email@gmail.com
 EMAIL_PASS=your_gmail_app_password
 CONTACT_EMAIL=your_contact_email@gmail.com
 SITE_NAME=Anil West Degree Portfolio
-SITE_URL=https://your-vercel-domain.vercel.app
+SITE_URL=https://westdegree.vercel.app/
 ```
 
 **⚠️ Important Security Notes:**
