@@ -1,0 +1,71 @@
+/* Navigation Item Disabled State */
+.popup_modal_content .portfolio_navigation {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: space-between;
+	background-color: var(--tj-theme-primary);
+	padding: 40px;
+	margin-top: 50px;
+	gap: 30px;
+}
+
+.portfolio_navigation .navigation_item {
+	max-width: calc(50% - 15px);
+	width: 100%;
+}
+
+.portfolio_navigation .navigation_item .project {
+	color: inherit;
+	text-decoration: none;
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 20px;
+	transition: 0.3s;
+}
+
+.portfolio_navigation .navigation_item .project:hover {
+	color: var(--tj-white);
+	opacity: 0.8;
+}
+
+.portfolio_navigation .navigation_item .project.disabled {
+	opacity: 0.5;
+	pointer-events: none;
+	cursor: not-allowed;
+}
+
+.portfolio_navigation .navigation_item .project.disabled:hover {
+	opacity: 0.5;
+}
+
+.portfolio_navigation .navigation_item .project .nav_project .label {
+	color: var(--tj-white);
+	opacity: 0.8;
+	font-size: 14px;
+	text-transform: uppercase;
+	margin-bottom: 5px;
+}
+
+.portfolio_navigation .navigation_item .project .nav_project .title {
+	color: var(--tj-white);
+	margin-bottom: 0;
+	font-size: 40px;
+	line-height: 1;
+}
+
+.portfolio_navigation .navigation_item .project i {
+	color: var(--tj-white);
+	font-size: 30px;
+	line-height: 1;
+}
+
+.portfolio_navigation .navigation_item.prev-project .project {
+	justify-content: flex-start;
+}
+
+.portfolio_navigation .navigation_item.next-project .project {
+	justify-content: flex-end;
+	text-align: right;
+}

@@ -1775,6 +1775,22 @@ body.loaded {
 .portfolio_navigation .navigation_item.next-project {
 	text-align: end;
 }
+
+.portfolio_navigation .navigation_item .project.disabled {
+	pointer-events: none;
+	opacity: 0.5;
+	cursor: default;
+}
+
+.portfolio_navigation .navigation_item .project.disabled i,
+.portfolio_navigation .navigation_item .project.disabled .nav_project .label,
+.portfolio_navigation .navigation_item .project.disabled .nav_project .title {
+	color: rgba(255, 255, 255, 0.5);
+}
+
+.portfolio_navigation .navigation_item .project.disabled:hover i {
+	transform: none;
+}
 /* END: Popup Section */
 
 /*

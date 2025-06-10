@@ -449,7 +449,7 @@
 		padding-bottom: 80px;
 		padding-top: 80px;
 	}
-	.tj-posts__area .tj_main_sidebar {
+	.tj_posts__area .tj_main_sidebar {
 		border-color: var(--tj-grey-4);
 		margin-top: 60px;
 	}
@@ -964,5 +964,27 @@
 	.tj-post-details__area .tj_main_sidebar {
 		border-top: 1px solid var(--tj-grey-4);
 		margin-top: 60px;
+	}
+}
+
+/* Portfolio Navigation Enhancements */
+@media only screen and (min-width: 768px) and (max-width: 991px) {
+	.portfolio_navigation .navigation_item .project i {
+		transition: transform 0.3s ease;
+	}
+	.portfolio_navigation .navigation_item .project:hover i {
+		transform: rotate(0deg) !important;
+	}
+}
+
+@media only screen and (max-width: 767px) {
+	.portfolio_navigation .navigation_item .project i {
+		transition: transform 0.3s ease;
+	}
+	.portfolio_navigation .navigation_item .project:hover i {
+		transform: rotate(0deg) !important;
+	}
+	.portfolio_navigation .navigation_item .project.disabled {
+		opacity: 0.6;
 	}
 }

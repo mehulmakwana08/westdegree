@@ -30,9 +30,38 @@ exports.getPortfolio = async (req, res) => {
                 message: 'Portfolio not found'
             });
         }
+
+        // Find next portfolio (by order, then _id)
+        let nextPortfolio = await Portfolio.findOne({
+            isActive: true,
+            $or: [
+                { order: { $gt: portfolio.order } },
+                { order: portfolio.order, _id: { $gt: portfolio._id } }
+            ]
+        }).sort({ order: 1, _id: 1 });
+        if (!nextPortfolio) {
+            // If not found, wrap to first
+            nextPortfolio = await Portfolio.findOne({ isActive: true }).sort({ order: 1, _id: 1 });
+        }
+
+        // Find previous portfolio (by order, then _id)
+        let prevPortfolio = await Portfolio.findOne({
+            isActive: true,
+            $or: [
+                { order: { $lt: portfolio.order } },
+                { order: portfolio.order, _id: { $lt: portfolio._id } }
+            ]
+        }).sort({ order: -1, _id: -1 });
+        if (!prevPortfolio) {
+            // If not found, wrap to last
+            prevPortfolio = await Portfolio.findOne({ isActive: true }).sort({ order: -1, _id: -1 });
+        }
+
         res.json({
             success: true,
-            portfolio: portfolio
+            portfolio: portfolio,
+            nextPortfolio: nextPortfolio && nextPortfolio._id.toString() !== portfolio._id.toString() ? nextPortfolio : null,
+            prevPortfolio: prevPortfolio && prevPortfolio._id.toString() !== portfolio._id.toString() ? prevPortfolio : null
         });
     } catch (error) {
         logger.error('Error fetching portfolio:', error);
