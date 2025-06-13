@@ -143,7 +143,7 @@ exports.createPortfolio = async (req, res) => {    try {
 
 // Update portfolio
 exports.updatePortfolio = async (req, res) => {    try {
-        const { title, shortDescription, longDescription, category, order, isActive } = req.body;
+        const { title, shortDescription, longDescription, category, order, isActive, removedGalleryImages } = req.body;
         
         const portfolio = await Portfolio.findById(req.params.id);
         if (!portfolio) {
@@ -151,9 +151,7 @@ exports.updatePortfolio = async (req, res) => {    try {
                 success: false,
                 message: 'Portfolio not found'
             });
-        }
-
-        // Handle file uploads
+        }        // Handle file uploads
         if (req.files) {
             if (req.files.image && req.files.image.length > 0) {
                 // Delete old image if exists
@@ -171,13 +169,38 @@ exports.updatePortfolio = async (req, res) => {    try {
                     portfolio.galleryImages.push(`/uploads/portfolio/gallery/${file.filename}`);
                 });
             }
-        }        // Update fields
+        }
+
+        // Handle removed gallery images
+        if (removedGalleryImages) {
+            try {
+                const removedImages = JSON.parse(removedGalleryImages);
+                if (Array.isArray(removedImages)) {
+                    removedImages.forEach(imagePath => {
+                        // Remove from portfolio array
+                        const imageIndex = portfolio.galleryImages.indexOf(imagePath);
+                        if (imageIndex > -1) {
+                            portfolio.galleryImages.splice(imageIndex, 1);
+                        }
+                        
+                        // Delete file from filesystem
+                        const fullImagePath = path.join(__dirname, '..', imagePath);
+                        if (fs.existsSync(fullImagePath)) {
+                            fs.unlinkSync(fullImagePath);
+                            logger.info(`Deleted gallery image: ${imagePath}`);
+                        }
+                    });
+                }
+            } catch (error) {
+                logger.warn('Error parsing removed gallery images:', error);
+            }
+        }// Update fields
         portfolio.title = title || portfolio.title;
         portfolio.shortDescription = shortDescription || portfolio.shortDescription;
         portfolio.longDescription = longDescription || portfolio.longDescription;
         portfolio.category = category || portfolio.category;
         portfolio.order = order || portfolio.order;
-        portfolio.isActive = isActive !== undefined ? isActive === 'true' : portfolio.isActive;
+        portfolio.isActive = isActive === 'on' || isActive === true;
 
         await portfolio.save();
         logger.info(`Portfolio updated: ${portfolio.title}`);

@@ -2,10 +2,10 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard - Portfolio Admin</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">    <title>Dashboard - Portfolio Admin</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="/css/admin-responsive.css" rel="stylesheet">
     <style>
         :root {
             --primary-color: #667eea;
@@ -109,81 +109,164 @@
             margin: 0;
             color: white;
         }
+          /* Mobile Toggle Button */
+        .mobile-toggle {
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            z-index: 1001;
+            border-radius: 5px;
+            padding: 8px 12px;
+        }
         
-        @media (max-width: 768px) {
+        /* Sidebar Overlay */
+        .sidebar-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+            display: none;
+        }
+        
+        .sidebar-overlay.show {
+            display: block;
+        }
+        
+        /* Responsive Breakpoints */
+        @media (max-width: 1199.98px) {
+            .main-content {
+                padding: 15px;
+            }
+            
+            .stats-card {
+                margin-bottom: 15px;
+            }
+        }
+        
+        @media (max-width: 991.98px) {
+            .sidebar {
+                width: 220px;
+            }
+            
+            .main-content {
+                margin-left: 220px;
+            }
+            
+            .stats-icon {
+                width: 50px;
+                height: 50px;
+                font-size: 20px;
+            }
+        }
+          @media (max-width: 767.98px) {
             .sidebar {
                 margin-left: -250px;
+                transition: margin-left 0.3s ease;
+                width: 250px !important;
             }
+            
+            .sidebar.show {
+                margin-left: 0;
+            }
+            
             .main-content {
                 margin-left: 0;
+                padding: 60px 15px 15px;
+                min-height: 100vh;
+            }
+            
+            .main-content h1 {
+                font-size: 1.75rem;
+                margin-bottom: 15px;
+            }
+            
+            .d-flex.justify-content-between {
+                flex-direction: column;
+                gap: 10px;
+                align-items: stretch !important;
+            }
+            
+            .d-flex.justify-content-between .btn {
+                width: 100%;
+                margin-bottom: 10px;
+            }
+            
+            .stats-card {
+                padding: 1rem;
+                margin-bottom: 15px;
+            }
+            
+            .stats-icon {
+                width: 45px;
+                height: 45px;
+                font-size: 18px;
+            }
+            
+            .table-responsive {
+                padding: 1rem;
+                font-size: 0.9rem;
+            }
+            
+            .table th,
+            .table td {
+                padding: 8px 4px;
+                font-size: 0.85rem;
+            }
+        }
+        
+        @media (max-width: 575.98px) {
+            .main-content {
+                padding: 60px 5px 5px;
+            }
+            
+            .stats-card {
+                padding: 0.75rem;
+            }
+            
+            .stats-card .d-flex {
+                flex-direction: column;
+                text-align: center;
+                gap: 10px;
+            }
+            
+            .stats-icon {
+                margin: 0 auto;
+                width: 40px;
+                height: 40px;
+                font-size: 16px;
+            }
+            
+            .stats-card h3 {
+                font-size: 1.5rem;
+                margin-bottom: 0;
+            }
+            
+            .table-responsive {
+                padding: 0.5rem;
+            }
+            
+            .table {
+                font-size: 0.8rem;
+            }
+            
+            .table th:nth-child(3),
+            .table td:nth-child(3) {
+                display: none;
+            }
+            
+            .btn {
+                font-size: 0.85rem;
+                padding: 0.375rem 0.75rem;
             }
         }
     </style>
 </head>
 <body>
     <!-- Sidebar -->
-    <nav class="sidebar">
-        <div class="sidebar-brand">
-            <h4><i class="fas fa-user-cog"></i> Admin Panel</h4>
-        </div>
-        <ul class="nav flex-column">
-            <li class="nav-item">
-                <a class="nav-link active" href="/admin">
-                    <i class="fas fa-tachometer-alt"></i> Dashboard
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="/admin/personal-info">
-                    <i class="fas fa-user"></i> Personal Info
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="/admin/services">
-                    <i class="fas fa-cogs"></i> Services
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="/admin/portfolio">
-                    <i class="fas fa-briefcase"></i> Portfolio
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="/admin/experience">
-                    <i class="fas fa-building"></i> Experience
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="/admin/education">
-                    <i class="fas fa-graduation-cap"></i> Education
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="/admin/skills">
-                    <i class="fas fa-star"></i> Skills
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="/admin/testimonials">
-                    <i class="fas fa-comments"></i> Testimonials
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="/admin/blogs">
-                    <i class="fas fa-blog"></i> Blogs
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="/admin/contacts">
-                    <i class="fas fa-envelope"></i> Contacts
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="/admin/logout">
-                    <i class="fas fa-sign-out-alt"></i> Logout
-                </a>
-            </li>
-        </ul>
-    </nav>
+    <%- include('sidebar') %>
 
     <!-- Main Content -->
     <div class="main-content">
@@ -307,5 +390,83 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Mobile sidebar toggle functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const sidebarToggle = document.getElementById('sidebarToggle');
+            const sidebar = document.getElementById('sidebar');
+            const sidebarOverlay = document.getElementById('sidebarOverlay');
+            
+            if (sidebarToggle) {
+                sidebarToggle.addEventListener('click', function() {
+                    sidebar.classList.toggle('show');
+                    sidebarOverlay.classList.toggle('show');
+                });
+            }
+            
+            if (sidebarOverlay) {
+                sidebarOverlay.addEventListener('click', function() {
+                    sidebar.classList.remove('show');
+                    sidebarOverlay.classList.remove('show');
+                });
+            }
+            
+            // Close sidebar when clicking nav links on mobile
+            const navLinks = sidebar.querySelectorAll('.nav-link');
+            navLinks.forEach(link => {
+                link.addEventListener('click', function() {
+                    if (window.innerWidth <= 767) {
+                        sidebar.classList.remove('show');
+                        sidebarOverlay.classList.remove('show');
+                    }
+                });
+            });
+        });
+    </script>
+    <!-- Add mobile menu functionality JavaScript -->
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const mobileToggle = document.getElementById('mobileMenuToggle');
+        const sidebar = document.getElementById('adminSidebar');
+        const overlay = document.getElementById('mobileOverlay');
+        
+        // Toggle mobile menu
+        mobileToggle.addEventListener('click', function() {
+            sidebar.classList.toggle('mobile-hidden');
+            sidebar.classList.toggle('mobile-visible');
+            overlay.classList.toggle('active');
+        });
+        
+        // Close menu when clicking overlay
+        overlay.addEventListener('click', function() {
+            sidebar.classList.add('mobile-hidden');
+            sidebar.classList.remove('mobile-visible');
+            overlay.classList.remove('active');
+        });
+        
+        // Close menu when clicking nav links on mobile
+        const navLinks = sidebar.querySelectorAll('.admin-nav a');
+        navLinks.forEach(link => {
+            link.addEventListener('click', function() {
+                if (window.innerWidth <= 768) {
+                    sidebar.classList.add('mobile-hidden');
+                    sidebar.classList.remove('mobile-visible');
+                    overlay.classList.remove('active');
+                }
+            });
+        });
+        
+        // Handle window resize
+        window.addEventListener('resize', function() {
+            if (window.innerWidth > 768) {
+                sidebar.classList.remove('mobile-hidden', 'mobile-visible');
+                overlay.classList.remove('active');
+            } else {
+                sidebar.classList.add('mobile-hidden');
+                sidebar.classList.remove('mobile-visible');
+            }
+        });
+    });
+    </script>
 </body>
 </html>

@@ -139,68 +139,7 @@
 </head>
 <body>
     <!-- Sidebar -->
-    <nav class="sidebar">
-        <div class="sidebar-brand">
-            <h4><i class="fas fa-user-cog"></i> Admin Panel</h4>
-        </div>
-        <ul class="nav flex-column">
-            <li class="nav-item">
-                <a class="nav-link" href="/admin">
-                    <i class="fas fa-tachometer-alt"></i> Dashboard
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="/admin/personal-info">
-                    <i class="fas fa-user"></i> Personal Info
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="/admin/services">
-                    <i class="fas fa-cogs"></i> Services
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="/admin/portfolio">
-                    <i class="fas fa-briefcase"></i> Portfolio
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="/admin/experience">
-                    <i class="fas fa-building"></i> Experience
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="/admin/education">
-                    <i class="fas fa-graduation-cap"></i> Education
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="/admin/skills">
-                    <i class="fas fa-star"></i> Skills
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="/admin/testimonials">
-                    <i class="fas fa-comments"></i> Testimonials
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="/admin/blogs">
-                    <i class="fas fa-blog"></i> Blogs
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link active" href="/admin/contacts">
-                    <i class="fas fa-envelope"></i> Contacts
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="/admin/logout">
-                    <i class="fas fa-sign-out-alt"></i> Logout
-                </a>
-            </li>
-        </ul>
-    </nav>
+    <%- include('sidebar') %>
 
     <!-- Main Content -->
     <div class="main-content">
