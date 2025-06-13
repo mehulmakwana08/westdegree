@@ -332,7 +332,7 @@
                     <!-- Quick Actions -->
                     <div class="d-grid gap-2">
                         <a href="mailto:<%= contact.email %>?subject=Re: Your inquiry&body=Hi <%= contact.firstName %>,%0D%0A%0D%0AThank you for contacting us." 
-                           class="btn btn-success">
+                           class="btn btn-success" id="replyBtn">
                             <i class="fas fa-reply me-2"></i>Reply via Email
                         </a>
                         
@@ -422,6 +422,40 @@
                 }
             });
         }, 5000);
+        
+        // Add event handler for the Reply button
+        document.addEventListener('DOMContentLoaded', function() {
+            const replyBtn = document.getElementById('replyBtn');
+            if (replyBtn) {
+                replyBtn.addEventListener('click', function(e) {
+                    e.preventDefault(); // Prevent default navigation
+                    const email = '<%= contact.email %>';
+                    const name = '<%= contact.firstName %>';
+                    const subject = 'Re: Your inquiry';
+                    const body = `Hi ${name},\n\nThank you for contacting us.\n\n`;
+                    
+                    // Use window.open instead of window.location.href to handle the email client opening
+                    window.open(`mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`);
+                    
+                    // Mark as replied if not already marked
+                    <% if (!contact.replied) { %>
+                    fetch('/admin/contacts/<%= contact._id %>/update', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                        },
+                        body: 'replied=true'
+                    }).then(response => {
+                        if (response.ok) {
+                            console.log('Marked as replied');
+                        }
+                    }).catch(error => {
+                        console.error('Error marking as replied:', error);
+                    });
+                    <% } %>
+                });
+            }
+        });
     </script>
 </body>
 </html>

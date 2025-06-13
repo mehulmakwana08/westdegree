@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">    <title>Dashboard - Portfolio Admin</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <link href="/css/admin-responsive.css" rel="stylesheet">
     <style>
         :root {
             --primary-color: #667eea;
@@ -430,40 +429,45 @@
         const sidebar = document.getElementById('adminSidebar');
         const overlay = document.getElementById('mobileOverlay');
         
-        // Toggle mobile menu
-        mobileToggle.addEventListener('click', function() {
-            sidebar.classList.toggle('mobile-hidden');
-            sidebar.classList.toggle('mobile-visible');
-            overlay.classList.toggle('active');
-        });
-        
-        // Close menu when clicking overlay
-        overlay.addEventListener('click', function() {
-            sidebar.classList.add('mobile-hidden');
-            sidebar.classList.remove('mobile-visible');
-            overlay.classList.remove('active');
-        });
-        
-        // Close menu when clicking nav links on mobile
-        const navLinks = sidebar.querySelectorAll('.admin-nav a');
-        navLinks.forEach(link => {
-            link.addEventListener('click', function() {
-                if (window.innerWidth <= 768) {
-                    sidebar.classList.add('mobile-hidden');
-                    sidebar.classList.remove('mobile-visible');
-                    overlay.classList.remove('active');
-                }
+        // Only add event listeners if elements exist
+        if (mobileToggle && sidebar && overlay) {
+            // Toggle mobile menu
+            mobileToggle.addEventListener('click', function() {
+                sidebar.classList.toggle('mobile-hidden');
+                sidebar.classList.toggle('mobile-visible');
+                overlay.classList.toggle('active');
             });
-        });
+            
+            // Close menu when clicking overlay
+            overlay.addEventListener('click', function() {
+                sidebar.classList.add('mobile-hidden');
+                sidebar.classList.remove('mobile-visible');
+                overlay.classList.remove('active');
+            });
+            
+            // Close menu when clicking nav links on mobile
+            const navLinks = sidebar.querySelectorAll('.admin-nav a');
+            navLinks.forEach(link => {
+                link.addEventListener('click', function() {
+                    if (window.innerWidth <= 768) {
+                        sidebar.classList.add('mobile-hidden');
+                        sidebar.classList.remove('mobile-visible');
+                        overlay.classList.remove('active');
+                    }
+                });
+            });
+        }
         
         // Handle window resize
         window.addEventListener('resize', function() {
-            if (window.innerWidth > 768) {
-                sidebar.classList.remove('mobile-hidden', 'mobile-visible');
-                overlay.classList.remove('active');
-            } else {
-                sidebar.classList.add('mobile-hidden');
-                sidebar.classList.remove('mobile-visible');
+            if (sidebar) {
+                if (window.innerWidth > 768) {
+                    sidebar.classList.remove('mobile-hidden', 'mobile-visible');
+                    if (overlay) overlay.classList.remove('active');
+                } else {
+                    sidebar.classList.add('mobile-hidden');
+                    sidebar.classList.remove('mobile-visible');
+                }
             }
         });
     });

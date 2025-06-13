@@ -129,9 +129,7 @@
     
     .main-content {
         margin-left: 0;
-        padding: 60px 15px 15px;
-        min-height: 100vh;
-        width: 100%;
+        padding: 60px 10px 10px;
     }
     
     .main-content h1 {
@@ -143,7 +141,6 @@
     .d-flex.justify-content-between {
         flex-direction: column;
         gap: 10px;
-        align-items: stretch !important;
     }
     
     .d-flex.justify-content-between .btn {
@@ -163,6 +160,19 @@
         font-size: 18px;
     }
     
+    .filter-section {
+        padding: 15px;
+    }
+    
+    .filter-section .row {
+        margin: 0;
+    }
+    
+    .filter-section .col-md-3 {
+        padding: 5px;
+        margin-bottom: 10px;
+    }
+    
     /* Table responsiveness */
     .table-responsive {
         padding: 1rem;
@@ -173,9 +183,8 @@
     
     .table th,
     .table td {
-        padding: 8px 6px;
+        padding: 8px 4px;
         font-size: 0.85rem;
-        white-space: nowrap;
     }
     
     /* Form improvements */
@@ -193,7 +202,7 @@
 /* Mobile Portrait (max-width: 575px) */
 @media (max-width: 575.98px) {
     .main-content {
-        padding: 60px 10px 10px;
+        padding: 60px 5px 5px;
     }
     
     .stats-card {
@@ -204,7 +213,6 @@
         flex-direction: column;
         text-align: center;
         gap: 10px;
-        align-items: center;
     }
     
     .stats-icon {
@@ -229,44 +237,7 @@
     }
     
     .table {
-        font-size: 0.8rem;
-    }
-    
-    /* Hide less important columns on very small screens */
-    .table th:nth-child(3),
-    .table td:nth-child(3),
-    .table th:nth-child(4),
-    .table td:nth-child(4) {
-        display: none;
-    }
-    
-    /* Button improvements */
-    .btn {
-        font-size: 0.85rem;
-        padding: 0.375rem 0.75rem;
-    }
-    
-    .btn-group .btn {
-        flex: 1;
-        font-size: 0.8rem;
-    }
-    
-    /* Sidebar adjustments for very small screens */
-    .sidebar {
-        width: 280px !important;
-    }
-    
-    .sidebar .nav-link {
-        padding: 15px;
-        font-size: 0.9rem;
-    }
-    
-    .sidebar-brand {
-        padding: 15px;
-    }
-    
-    .sidebar-brand h4 {
-        font-size: 1rem;
+        font-size: 0.75rem;
     }
 }
 
