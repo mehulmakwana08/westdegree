@@ -12,6 +12,13 @@ const authController = require('./controllers/authController');
 const adminController = require('./controllers/adminController');
 const bcrypt = require('bcryptjs');
 const logger = require('./utils/logger');
+const { createUploadDirectories } = require('./utils/createDirectories');
+
+// Create upload directories at startup
+createUploadDirectories();
+
+// Create upload directories at startup
+createUploadDirectories();
 
 // Conditionally require Cloudinary config
 let upload;
@@ -20,19 +27,41 @@ try {
         const { genericUpload } = require('./config/cloudinary');
         upload = genericUpload;
         logger.info('Using Cloudinary for file uploads');
-    } else {
-        // Fallback to local storage for development
+    } else {        // Fallback to local storage for development
         const multer = require('multer');
         const fs = require('fs');
         
-        // Ensure upload directory exists
-        if (!fs.existsSync('uploads')) {
-            fs.mkdirSync('uploads', { recursive: true });
-        }
+        // Ensure upload directories exist
+        const uploadDirs = ['uploads', 'uploads/logos', 'uploads/profiles', 'uploads/cvs', 'uploads/portfolios', 'uploads/skills', 'uploads/social-icons'];
+        uploadDirs.forEach(dir => {
+            if (!fs.existsSync(dir)) {
+                fs.mkdirSync(dir, { recursive: true });
+            }
+        });
         
         const storage = multer.diskStorage({
             destination: function (req, file, cb) {
-                cb(null, 'uploads/');
+                let uploadPath = 'uploads/';
+                
+                // Organize uploads by type
+                if (file.fieldname === 'logo') {
+                    uploadPath = 'uploads/logos/';
+                } else if (file.fieldname === 'profileImage') {
+                    uploadPath = 'uploads/profiles/';
+                } else if (file.fieldname === 'cvFile') {
+                    uploadPath = 'uploads/cvs/';
+                } else if (file.fieldname === 'image' || file.fieldname === 'images') {
+                    uploadPath = 'uploads/portfolios/';
+                } else if (file.fieldname === 'icon' || file.fieldname.includes('Icon')) {
+                    uploadPath = 'uploads/skills/';
+                }
+                
+                // Ensure the directory exists
+                if (!fs.existsSync(uploadPath)) {
+                    fs.mkdirSync(uploadPath, { recursive: true });
+                }
+                
+                cb(null, uploadPath);
             },
             filename: function (req, file, cb) {
                 cb(null, Date.now() + '-' + file.originalname);
@@ -42,18 +71,43 @@ try {
         logger.info('Using local storage for file uploads (development mode)');
     }
 } catch (error) {
-    logger.warn('Cloudinary configuration error, falling back to local storage:', error.message);
-    // Fallback configuration
+    logger.warn('Cloudinary configuration error, falling back to local storage:', error.message);    // Fallback configuration
     const multer = require('multer');
     const fs = require('fs');
     
-    if (!fs.existsSync('uploads')) {
-        fs.mkdirSync('uploads', { recursive: true });
-    }
+    // Ensure upload directories exist
+    const uploadDirs = ['uploads', 'uploads/logos', 'uploads/profiles', 'uploads/cvs', 'uploads/portfolios', 'uploads/skills', 'uploads/social-icons'];
+    uploadDirs.forEach(dir => {
+        if (!fs.existsSync(dir)) {
+            fs.mkdirSync(dir, { recursive: true });
+        }
+    });
     
     const storage = multer.diskStorage({
         destination: function (req, file, cb) {
-            cb(null, 'uploads/');
+            let uploadPath = 'uploads/';
+            
+            // Organize uploads by type
+            if (file.fieldname === 'logo') {
+                uploadPath = 'uploads/logos/';
+            } else if (file.fieldname === 'profileImage') {
+                uploadPath = 'uploads/profiles/';
+            } else if (file.fieldname === 'cvFile') {
+                uploadPath = 'uploads/cvs/';
+            } else if (file.fieldname === 'image' || file.fieldname === 'images') {
+                uploadPath = 'uploads/portfolios/';
+            } else if (file.fieldname.startsWith('socialIcon')) {
+                uploadPath = 'uploads/social-icons/';
+            } else if (file.fieldname === 'icon' || file.fieldname.includes('Icon')) {
+                uploadPath = 'uploads/skills/';
+            }
+            
+            // Ensure the directory exists
+            if (!fs.existsSync(uploadPath)) {
+                fs.mkdirSync(uploadPath, { recursive: true });
+            }
+            
+            cb(null, uploadPath);
         },
         filename: function (req, file, cb) {
             cb(null, Date.now() + '-' + file.originalname);
@@ -146,6 +200,8 @@ app.use((req, res, next) => {
 // Serve static files from /assets URL
 app.use('/assets', express.static(path.join(__dirname, 'assets')));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+// Serve static files from public directory
+app.use(express.static(path.join(__dirname, 'public')));
 
 // Session configuration with MongoDB store
 const sessionConfig = {
@@ -452,18 +508,23 @@ app.post('/contact', async (req, res) => {
 
 // File upload handler
 app.post('/upload', upload.single('file'), (req, res) => {
-    if (req.file) {
-        logger.info(`File uploaded successfully: ${req.file.filename}`);
-        // For Cloudinary, the file path is in req.file.path
-        res.json({ 
-            success: true, 
-            filename: req.file.filename || req.file.original_filename,
-            path: req.file.path || req.file.secure_url,
-            url: req.file.secure_url || req.file.path
-        });
-    } else {
-        logger.warn('File upload failed: No file provided');
-        res.json({ success: false, message: 'No file uploaded' });
+    try {
+        if (req.file) {
+            logger.info(`File uploaded successfully: ${req.file.filename}`);
+            // For Cloudinary, the file path is in req.file.path
+            res.json({ 
+                success: true, 
+                filename: req.file.filename || req.file.original_filename,
+                path: req.file.path || req.file.secure_url,
+                url: req.file.secure_url || req.file.path
+            });
+        } else {
+            logger.warn('File upload failed: No file provided');
+            res.json({ success: false, message: 'No file uploaded' });
+        }
+    } catch (error) {
+        logger.error('File upload error:', error);
+        res.status(500).json({ success: false, message: 'File upload failed', error: error.message });
     }
 });
 
@@ -501,6 +562,54 @@ app.get('*', async (req, res) => {
 // Error handler
 app.use((err, req, res, next) => {
     logger.error('Application error', { error: err.stack, message: err.message });
+    
+    // Handle multer errors specifically
+    if (err.code === 'ENOENT') {
+        logger.error('File not found error:', err.message);
+        
+        // Try to create missing directories
+        if (err.path && err.path.includes('uploads')) {
+            const dirPath = path.dirname(err.path);
+            const fs = require('fs');
+            try {
+                if (!fs.existsSync(dirPath)) {
+                    fs.mkdirSync(dirPath, { recursive: true });
+                    logger.info(`Created missing directory: ${dirPath}`);
+                }
+            } catch (dirError) {
+                logger.error('Failed to create directory:', dirError.message);
+            }
+        }
+        
+        if (req.xhr || req.headers.accept?.includes('application/json')) {
+            return res.status(500).json({ error: 'File upload failed', message: 'File or directory not found' });
+        }
+        return res.redirect(req.originalUrl + '?error=' + encodeURIComponent('File upload failed: File or directory not found'));
+    }
+    
+    // Handle file upload errors
+    if (err instanceof Error && (err.message.includes('upload') || err.message.includes('ENOENT'))) {
+        logger.error('Upload error:', err.message);
+        if (req.xhr || req.headers.accept?.includes('application/json')) {
+            return res.status(500).json({ error: 'File upload failed', message: err.message });
+        }
+        return res.redirect(req.originalUrl + '?error=' + encodeURIComponent('File upload failed'));
+    }
+    
+    // Handle multer file size errors
+    if (err.code === 'LIMIT_FILE_SIZE') {
+        logger.error('File too large:', err.message);
+        if (req.xhr || req.headers.accept?.includes('application/json')) {
+            return res.status(400).json({ error: 'File too large', message: 'Please choose a smaller file' });
+        }
+        return res.redirect(req.originalUrl + '?error=' + encodeURIComponent('File too large. Please choose a smaller file.'));
+    }
+    
+    // Generic error handling
+    if (req.xhr || req.headers.accept?.includes('application/json')) {
+        return res.status(500).json({ error: 'Internal server error', message: err.message });
+    }
+    
     res.status(500).send('Something broke!');
 });
 

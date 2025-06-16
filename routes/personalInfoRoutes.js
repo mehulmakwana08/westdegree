@@ -19,6 +19,13 @@ const upload = multer({
             } else if (file.fieldname.startsWith('socialIcon')) {
                 uploadPath += 'social-icons/';
             }
+            
+            // Ensure directory exists
+            const fs = require('fs');
+            if (!fs.existsSync(uploadPath)) {
+                fs.mkdirSync(uploadPath, { recursive: true });
+            }
+            
             cb(null, uploadPath);
         },
         filename: function (req, file, cb) {
@@ -29,10 +36,10 @@ const upload = multer({
     fileFilter: function (req, file, cb) {
         // Allow SVG files for social icons
         if (file.fieldname.startsWith('socialIcon')) {
-            if (file.mimetype === 'image/svg+xml') {
+            if (file.mimetype === 'image/svg+xml' || file.mimetype.startsWith('image/')) {
                 cb(null, true);
             } else {
-                cb(new Error('Only SVG files are allowed for social icons'), false);
+                cb(new Error('Only image files (including SVG) are allowed for social icons'), false);
             }
         } else {
             cb(null, true);

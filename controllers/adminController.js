@@ -51,7 +51,8 @@ exports.getDashboard = async (req, res) => {
             title: 'Admin Dashboard',
             admin: user,
             stats: stats,
-            recentContacts: recentContacts
+            recentContacts: recentContacts,
+            currentPage: 'dashboard'  // Add currentPage variable
         });
     } catch (error) {
         logger.error('Error loading dashboard:', error);

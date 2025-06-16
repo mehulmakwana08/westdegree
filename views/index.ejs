@@ -74,20 +74,23 @@
                             <p class="lead"><%= personalInfo.bio || "I'm not just a Graphic Designer and 3D animator, I'm a visual sorcerer,I have  4+ years of experience in graphic design conjuring ideas into a vibrant dance of pixels and polygons. With a touch of design magic & a dash of 3D wizardry, I bring concepts to life, turning ordinary visuals into extraordinary experiences." %></p>
                             <div class="button-box d-flex flex-wrap align-items-center">
                                 <a href="<%= personalInfo.cvFile || 'Designer Anil .pdf' %>"  class="btn tj-btn-secondary">Download
-                                    CV <i class="flaticon-download"></i></a>
-                                <ul class="ul-reset social-icons">
+                                    CV <i class="flaticon-download"></i></a>                                <ul class="ul-reset social-icons">
                                     <% if (personalInfo.socialLinks && personalInfo.socialLinks.length > 0) { %>
                                         <% personalInfo.socialLinks.forEach(link => { %>
                                             <li><a href="<%= link.url %>" target="_blank" title="<%= link.name %>">
                                                 <% if (link.icon) { %>
-                                                    <img src="<%= link.icon %>" alt="<%= link.name %>">
+                                                    <% if (link.icon.endsWith('.svg')) { %>
+                                                        <img src="<%= link.icon %>" alt="<%= link.name %>" style="width: 20px; height: 20px;">
+                                                    <% } else { %>
+                                                        <img src="<%= link.icon %>" alt="<%= link.name %>" style="width: 20px; height: 20px;">
+                                                    <% } %>
                                                 <% } else { %>
                                                     <i class="fa fa-link"></i>
                                                 <% } %>
                                             </a></li>
                                         <% }) %>
                                     <% } else { %>
-                                        <li><a href="#"><img src="assets/img/icons/LOGO.svg"></a></li>
+                                        <li><a href="#"><img src="assets/img/icons/LOGO.svg" style="width: 20px; height: 20px;"></a></li>
                                         <li><a href="#"><i class="fa fa-bars"></i></a></li>
                                         <li><a href="#"><i class="fa-brands fa-linkedin-in"></i></a></li>
                                         <li><a href="#"><i class="fa-brands fa-github"></i></a></li>

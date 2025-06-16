@@ -45,10 +45,13 @@ exports.getAdminContacts = async (req, res) => {
                 limit,
                 totalContacts
             },
-            filters: {
+            filter: {
                 status: req.query.status || 'all',
-                service: req.query.service || 'all'
+                service: req.query.service || 'all',
+                sort: req.query.sort || 'newest',
+                search: req.query.search || ''
             },
+            currentPage: 'contacts',
             success: successMessage === 'true',
             updated: req.query.updated === 'true',
             deleted: req.query.deleted === 'true',

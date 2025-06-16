@@ -1,0 +1,53 @@
+<!-- Admin Sidebar -->
+<div class="sidebar">
+    <div class="sidebar-brand">
+        <h4><i class="fas fa-graduation-cap"></i> West Degree</h4>
+    </div>
+    
+    <div class="sidebar-menu">
+        <ul class="nav flex-column">
+            <li class="nav-item">
+                <a class="nav-link <%= activePage === 'dashboard' ? 'active' : '' %>" href="/admin/dashboard">
+                    <i class="fas fa-tachometer-alt"></i>
+                    <span>Dashboard</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link <%= activePage === 'contacts' ? 'active' : '' %>" href="/admin/contacts">
+                    <i class="fas fa-envelope"></i>
+                    <span>Contacts</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link <%= activePage === 'services' ? 'active' : '' %>" href="/admin/services">
+                    <i class="fas fa-cogs"></i>
+                    <span>Services</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link <%= activePage === 'portfolio' ? 'active' : '' %>" href="/admin/portfolio">
+                    <i class="fas fa-briefcase"></i>
+                    <span>Portfolio</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link <%= activePage === 'blog' ? 'active' : '' %>" href="/admin/blog">
+                    <i class="fas fa-blog"></i>
+                    <span>Blog</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link <%= activePage === 'settings' ? 'active' : '' %>" href="/admin/settings">
+                    <i class="fas fa-cog"></i>
+                    <span>Settings</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/admin/logout">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Logout</span>
+                </a>
+            </li>
+        </ul>
+    </div>
+</div>

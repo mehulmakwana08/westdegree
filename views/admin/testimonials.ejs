@@ -222,6 +222,14 @@
     </style>
 </head>
 <body>
+    <!-- Mobile Toggle Button -->
+    <button class="btn btn-primary d-lg-none mobile-toggle" type="button" id="sidebarToggle" aria-label="Toggle navigation">
+        <i class="fas fa-bars"></i>
+    </button>
+
+    <!-- Sidebar Overlay for mobile -->
+    <div class="sidebar-overlay d-lg-none" id="sidebarOverlay"></div>
+    
     <!-- Sidebar -->
     <%- include('sidebar') %>
 
@@ -528,7 +536,9 @@
             const alerts = document.querySelectorAll('.alert');
             alerts.forEach(alert => {
                 const bsAlert = new bootstrap.Alert(alert);
-                bsAlert.close();
+                if (bsAlert) {
+                    bsAlert.close();
+                }
             });
         }, 5000);
 
@@ -539,27 +549,50 @@
                 const testimonial = await response.json();
                 
                 if (response.ok) {
-                    // Populate edit form
-                    document.getElementById('editClientName').value = testimonial.clientName;
-                    document.getElementById('editDesignation').value = testimonial.designation;
-                    document.getElementById('editCompany').value = testimonial.company;
-                    document.getElementById('editTestimonialText').value = testimonial.testimonialText;
-                    document.getElementById('editRating').value = testimonial.rating || 5;
-                    document.getElementById('editOrder').value = testimonial.order || 1;
-                    document.getElementById('editIsActive').checked = testimonial.isActive;
-                    
-                    // Set form action
+                    // Populate form
                     document.getElementById('editTestimonialForm').action = `/admin/testimonials/${testimonialId}/update`;
+                    document.getElementById('editClientName').value = testimonial.clientName;
+                    document.getElementById('editClientTitle').value = testimonial.clientTitle;
+                    document.getElementById('editTestimonialText').value = testimonial.testimonial;
+                    document.getElementById('editRating').value = testimonial.rating;
+                    document.getElementById('currentClientImage').src = testimonial.clientImage || '/img/placeholder-profile.jpg';
+                    document.getElementById('currentCompanyLogo').src = testimonial.companyLogo || '/img/placeholder-logo.jpg';
                     
                     // Show modal
                     const editModal = new bootstrap.Modal(document.getElementById('editTestimonialModal'));
                     editModal.show();
                 } else {
                     alert('Error loading testimonial details');
-                }            } catch (error) {
+                }
+            } catch (error) {
                 alert('Error loading testimonial details');
+                console.error(error);
             }
         }
+
+        // Sidebar toggle for mobile
+        document.addEventListener('DOMContentLoaded', function() {
+            const sidebarToggle = document.getElementById('sidebarToggle');
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+            
+            if (sidebarToggle && sidebar) {
+                sidebarToggle.addEventListener('click', function() {
+                    sidebar.classList.toggle('show');
+                    if (overlay) {
+                        overlay.classList.toggle('show');
+                    }
+                });
+            }
+            
+            // Close sidebar when clicking on overlay
+            if (overlay) {
+                overlay.addEventListener('click', function() {
+                    this.classList.remove('show');
+                    sidebar.classList.remove('show');
+                });
+            }
+        });
     </script>
 </body>
 </html>
