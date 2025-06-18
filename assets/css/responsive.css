@@ -292,13 +292,12 @@
 	.services-widget i {
 		right: 20px;
 	}
-
 	/* popup */
 	.popup_content_area {
 		max-width: 670px;
 	}
 	.popup_modal_img {
-		padding: 40px 25px 0 25px;
+		padding: 0;
 	}
 	.popup_modal_content {
 		padding-top: 40px;
@@ -314,14 +313,10 @@
 		border-top: 1px solid var(--tj-grey-3);
 		padding-top: 41px;
 	}
-
 	/* portfolio */
 	.portfolio-section {
 		padding-top: 80px;
 		padding-bottom: 60px;
-	}
-	.portfolio-box .portfolio-item {
-		padding: 25px 15px 0 15px;
 	}
 	.portfolio-box .content-box {
 		width: calc(100% - 30px);
@@ -641,13 +636,12 @@
 			var(--tj-theme-primary) 100%
 		);
 	}
-
 	/* popup */
 	.popup_content_area {
 		max-width: 330px;
 	}
 	.popup_modal_img {
-		padding: 30px 15px 0 15px;
+		padding: 0;
 	}
 	.popup_content_area .mfp-close {
 		width: 30px;
