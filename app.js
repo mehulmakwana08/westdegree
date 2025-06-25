@@ -13,68 +13,13 @@ const adminController = require('./controllers/adminController');
 const bcrypt = require('bcryptjs');
 const logger = require('./utils/logger');
 const { createUploadDirectories } = require('./utils/createDirectories');
+const fs = require('fs');
 
 // Create upload directories at startup
 createUploadDirectories();
 
-// Create upload directories at startup
-createUploadDirectories();
-
-// Conditionally require Cloudinary config
-let upload;
-try {
-    if (process.env.CLOUDINARY_CLOUD_NAME && process.env.CLOUDINARY_API_KEY) {
-        const { genericUpload } = require('./config/cloudinary');
-        upload = genericUpload;
-        logger.info('Using Cloudinary for file uploads');
-    } else {        // Fallback to local storage for development
-        const multer = require('multer');
-        const fs = require('fs');
-        
-        // Ensure upload directories exist
-        const uploadDirs = ['uploads', 'uploads/logos', 'uploads/profiles', 'uploads/cvs', 'uploads/portfolios', 'uploads/skills', 'uploads/social-icons'];
-        uploadDirs.forEach(dir => {
-            if (!fs.existsSync(dir)) {
-                fs.mkdirSync(dir, { recursive: true });
-            }
-        });
-        
-        const storage = multer.diskStorage({
-            destination: function (req, file, cb) {
-                let uploadPath = 'uploads/';
-                
-                // Organize uploads by type
-                if (file.fieldname === 'logo') {
-                    uploadPath = 'uploads/logos/';
-                } else if (file.fieldname === 'profileImage') {
-                    uploadPath = 'uploads/profiles/';
-                } else if (file.fieldname === 'cvFile') {
-                    uploadPath = 'uploads/cvs/';
-                } else if (file.fieldname === 'image' || file.fieldname === 'images') {
-                    uploadPath = 'uploads/portfolios/';
-                } else if (file.fieldname === 'icon' || file.fieldname.includes('Icon')) {
-                    uploadPath = 'uploads/skills/';
-                }
-                
-                // Ensure the directory exists
-                if (!fs.existsSync(uploadPath)) {
-                    fs.mkdirSync(uploadPath, { recursive: true });
-                }
-                
-                cb(null, uploadPath);
-            },
-            filename: function (req, file, cb) {
-                cb(null, Date.now() + '-' + file.originalname);
-            }
-        });
-        upload = multer({ storage: storage });
-        logger.info('Using local storage for file uploads (development mode)');
-    }
-} catch (error) {
-    logger.warn('Cloudinary configuration error, falling back to local storage:', error.message);    // Fallback configuration
-    const multer = require('multer');
-    const fs = require('fs');
-    
+// Configure local file storage for uploads
+const configureLocalStorage = () => {
     // Ensure upload directories exist
     const uploadDirs = ['uploads', 'uploads/logos', 'uploads/profiles', 'uploads/cvs', 'uploads/portfolios', 'uploads/skills', 'uploads/social-icons'];
     uploadDirs.forEach(dir => {
@@ -113,8 +58,13 @@ try {
             cb(null, Date.now() + '-' + file.originalname);
         }
     });
-    upload = multer({ storage: storage });
-}
+    
+    return multer({ storage: storage });
+};
+
+// Set up file upload with local storage
+const upload = configureLocalStorage();
+logger.info('Using local storage for file uploads');
 
 // Load environment variables
 dotenv.config();
@@ -231,10 +181,7 @@ if (process.env.MONGODB_URI && process.env.MONGODB_URI !== 'your_mongodb_uri_her
 }
 
 app.use(session(sessionConfig));
-
-// Configure multer for file uploads with Cloudinary
-// Upload configuration is set above based on environment
-
+// Configure multer for file uploads with local storage
 // Import PersonalInfo model
 const PersonalInfo = require('./models/PersonalInfo');
 const Service = require('./models/Service');
@@ -511,12 +458,13 @@ app.post('/upload', upload.single('file'), (req, res) => {
     try {
         if (req.file) {
             logger.info(`File uploaded successfully: ${req.file.filename}`);
-            // For Cloudinary, the file path is in req.file.path
+            // Only using local storage now
+            const filePath = `/uploads/${req.file.filename}`;
             res.json({ 
                 success: true, 
-                filename: req.file.filename || req.file.original_filename,
-                path: req.file.path || req.file.secure_url,
-                url: req.file.secure_url || req.file.path
+                filename: req.file.filename,
+                path: req.file.path,
+                url: filePath
             });
         } else {
             logger.warn('File upload failed: No file provided');
@@ -570,7 +518,6 @@ app.use((err, req, res, next) => {
         // Try to create missing directories
         if (err.path && err.path.includes('uploads')) {
             const dirPath = path.dirname(err.path);
-            const fs = require('fs');
             try {
                 if (!fs.existsSync(dirPath)) {
                     fs.mkdirSync(dirPath, { recursive: true });
@@ -621,4 +568,5 @@ app.listen(PORT, () => {
     logger.info(`Environment: ${process.env.NODE_ENV || 'development'}`);
 });
 
+// Export the app
 module.exports = app;

@@ -23,34 +23,28 @@ exports.updatePersonalInfo = async (req, res) => {
     try {
         logger.info('Updating personal information');
         const personalInfo = await PersonalInfo.findOne();
-        const updateData = { ...req.body };        // Handle file uploads if present
+        const updateData = { ...req.body };
+        
+        // Handle file uploads if present
         if (req.files && req.files.length > 0) {
             logger.info(`Processing ${req.files.length} file uploads`);
             // Handle logo, profile image, and CV uploads
             req.files.forEach(file => {
                 try {
-                    // For Cloudinary uploads, use secure_url; for local uploads, construct proper path
-                    let filePath;
-                    if (file.secure_url) {
-                        filePath = file.secure_url;
-                    } else if (file.path) {
-                        // Remove the 'uploads/' prefix if it exists and add it back consistently
-                        const fileName = file.filename || file.path.replace(/\\/g, '/').split('/').pop();
-                        
-                        // Determine the correct subdirectory based on fieldname
-                        let subDir = '';
-                        if (file.fieldname === 'logo') {
-                            subDir = 'logos/';
-                        } else if (file.fieldname === 'profileImage') {
-                            subDir = 'profiles/';
-                        } else if (file.fieldname === 'cvFile') {
-                            subDir = 'cvs/';
-                        }
-                        
-                        filePath = `/uploads/${subDir}${fileName}`;
-                    } else {
-                        throw new Error(`No valid file path found for ${file.fieldname}`);
+                    // Using only local file storage
+                    const fileName = file.filename || file.path.replace(/\\/g, '/').split('/').pop();
+                    
+                    // Determine the correct subdirectory based on fieldname
+                    let subDir = '';
+                    if (file.fieldname === 'logo') {
+                        subDir = 'logos/';
+                    } else if (file.fieldname === 'profileImage') {
+                        subDir = 'profiles/';
+                    } else if (file.fieldname === 'cvFile') {
+                        subDir = 'cvs/';
                     }
+                    
+                    const filePath = `/uploads/${subDir}${fileName}`;
                     
                     if (file.fieldname === 'logo') {
                         updateData.logo = filePath;
@@ -70,26 +64,19 @@ exports.updatePersonalInfo = async (req, res) => {
         } else if (req.file) {
             // Handle single file upload
             try {
-                let filePath;
-                if (req.file.secure_url) {
-                    filePath = req.file.secure_url;
-                } else if (req.file.path) {
-                    const fileName = req.file.filename || req.file.path.replace(/\\/g, '/').split('/').pop();
-                    
-                    // Determine the correct subdirectory based on fieldname
-                    let subDir = '';
-                    if (req.file.fieldname === 'logo') {
-                        subDir = 'logos/';
-                    } else if (req.file.fieldname === 'profileImage') {
-                        subDir = 'profiles/';
-                    } else if (req.file.fieldname === 'cvFile') {
-                        subDir = 'cvs/';
-                    }
-                    
-                    filePath = `/uploads/${subDir}${fileName}`;
-                } else {
-                    throw new Error(`No valid file path found for ${req.file.fieldname}`);
+                const fileName = req.file.filename || req.file.path.replace(/\\/g, '/').split('/').pop();
+                
+                // Determine the correct subdirectory based on fieldname
+                let subDir = '';
+                if (req.file.fieldname === 'logo') {
+                    subDir = 'logos/';
+                } else if (req.file.fieldname === 'profileImage') {
+                    subDir = 'profiles/';
+                } else if (req.file.fieldname === 'cvFile') {
+                    subDir = 'cvs/';
                 }
+                
+                const filePath = `/uploads/${subDir}${fileName}`;
                 
                 if (req.file.fieldname === 'logo') {
                     updateData.logo = filePath;
@@ -105,11 +92,15 @@ exports.updatePersonalInfo = async (req, res) => {
                 logger.error(`Error processing single file ${req.file.fieldname}:`, fileError);
                 throw new Error(`Failed to process uploaded file: ${req.file.fieldname}`);
             }
-        }        // Handle social links
+        }
+        
+        // Handle social links
         if (req.body.socialLinks) {
             const socialLinksData = typeof req.body.socialLinks === 'string' 
                 ? JSON.parse(req.body.socialLinks) 
-                : req.body.socialLinks;            // Filter out empty social links and validate required fields
+                : req.body.socialLinks;
+                
+            // Filter out empty social links and validate required fields
             updateData.socialLinks = socialLinksData
                 .filter(link => link.name && link.url && link.name.trim() && link.url.trim()) // Only include links with both name and url
                 .map((link, index) => {
@@ -125,14 +116,9 @@ exports.updatePersonalInfo = async (req, res) => {
                     let iconPath = link.icon || '';
                     if (socialIconFile) {
                         try {
-                            // For Cloudinary uploads, use secure_url; for local uploads, construct proper path
-                            if (socialIconFile.secure_url) {
-                                iconPath = socialIconFile.secure_url;
-                            } else if (socialIconFile.path) {
-                                // Remove the 'uploads/' prefix if it exists and add it back consistently
-                                const fileName = socialIconFile.filename || socialIconFile.path.replace(/\\/g, '/').split('/').pop();
-                                iconPath = `/uploads/social-icons/${fileName}`;
-                            }
+                            // Using only local file storage
+                            const fileName = socialIconFile.filename || socialIconFile.path.replace(/\\/g, '/').split('/').pop();
+                            iconPath = `/uploads/social-icons/${fileName}`;
                             logger.info(`Social icon uploaded for ${link.name}: ${iconPath}`);
                         } catch (fileError) {
                             logger.error(`Error processing social icon for ${link.name}:`, fileError);

@@ -1,11 +1,11 @@
 # Dynamic Portfolio - Node.js Project
 
-A comprehensive portfolio website built with Node.js, Express, MongoDB, and EJS templating. Features include admin panel, dynamic content management, file uploads, and contact forms.
+A comprehensive portfolio website built with Node.js, Express, MongoDB, and EJS templating. Features include admin panel, dynamic content management, local file uploads, and contact forms.
 
 ## 🚀 Features
 
 - **Dynamic Content Management**: Admin panel to manage portfolio content
-- **File Uploads**: Image and document uploads with Cloudinary integration
+- **File Uploads**: Image and document uploads with local storage
 - **Contact Forms**: Email functionality with Nodemailer
 - **Responsive Design**: Mobile-friendly portfolio layout
 - **Authentication**: Secure admin login system
@@ -18,7 +18,7 @@ A comprehensive portfolio website built with Node.js, Express, MongoDB, and EJS 
 - **Backend**: Node.js, Express.js
 - **Database**: MongoDB Atlas
 - **Template Engine**: EJS
-- **File Storage**: Cloudinary
+- **File Storage**: Local file system
 - **Authentication**: JWT, bcrypt
 - **Session Store**: connect-mongo
 - **Email**: Nodemailer
@@ -28,7 +28,6 @@ A comprehensive portfolio website built with Node.js, Express, MongoDB, and EJS 
 
 - Node.js (v14 or higher)
 - MongoDB Atlas account
-- Cloudinary account (for file uploads)
 - Gmail account (for email functionality)
 
 ## ⚙️ Installation & Setup
@@ -58,11 +57,6 @@ MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/database
 
 # Session Configuration
 SESSION_SECRET=your-super-secure-session-secret
-
-# Cloudinary Configuration
-CLOUDINARY_CLOUD_NAME=your-cloud-name
-CLOUDINARY_API_KEY=your-api-key
-CLOUDINARY_API_SECRET=your-api-secret
 
 # Email Configuration
 EMAIL_USER=your-email@gmail.com
@@ -109,9 +103,6 @@ This project is optimized for Vercel deployment with serverless functions.
 NODE_ENV=production
 MONGODB_URI=your-mongodb-connection-string
 SESSION_SECRET=your-secure-session-secret
-CLOUDINARY_CLOUD_NAME=your-cloudinary-name
-CLOUDINARY_API_KEY=your-cloudinary-key
-CLOUDINARY_API_SECRET=your-cloudinary-secret
 EMAIL_USER=your-email@gmail.com
 EMAIL_PASS=your-gmail-app-password
 CONTACT_EMAIL=your-contact@email.com
@@ -125,8 +116,6 @@ SITE_URL=https://your-domain.vercel.app
 ├── app.js                 # Main application file
 ├── package.json           # Dependencies and scripts
 ├── vercel.json           # Vercel deployment configuration
-├── config/
-│   └── cloudinary.js     # Cloudinary configuration
 ├── controllers/          # Route controllers
 ├── models/              # MongoDB models
 ├── routes/              # Express routes
@@ -134,7 +123,7 @@ SITE_URL=https://your-domain.vercel.app
 ├── views/               # EJS templates
 ├── assets/              # Static assets (CSS, JS, images)
 ├── utils/               # Utility functions
-└── uploads/             # Local upload directory (dev only)
+└── uploads/             # Local upload directory
 ```
 
 ## 🔧 Configuration Files
@@ -185,7 +174,7 @@ LOG_LEVEL=debug npm start
 - **Password Hashing**: bcrypt for secure password storage
 - **JWT Authentication**: Secure token-based authentication
 - **Input Validation**: Server-side validation for all inputs
-- **File Upload Security**: Cloudinary integration with validation
+- **File Upload Security**: Local file system validation
 
 ## 📖 API Endpoints
 
@@ -213,6 +202,17 @@ This project is licensed under the ISC License.
 
 ## 🆘 Support
 
+For deployment issues or questions:
+1. Check the `DEPLOYMENT_CHECKLIST.md`
+2. Review Vercel logs
+3. Verify all environment variables
+4. Test locally first
+
+---
+
+**Ready for Vercel Deployment! 🚀**
+
+Your Node.js portfolio project is now configured and ready for serverless deployment on Vercel.
 For deployment issues or questions:
 1. Check the `DEPLOYMENT_CHECKLIST.md`
 2. Review Vercel logs
