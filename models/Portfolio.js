@@ -25,8 +25,8 @@ const portfolioSchema = new mongoose.Schema({
     },    category: {
         type: String,
         required: true,
-        enum: ['uxui', 'branding', 'mobile-app', 'web-design', 'graphics'],
-        default: 'web-design'
+        enum: ['branding-design', 'packaging-design', 'social-media-design', 'print-design'],
+        default: 'branding-design'
     },
     order: {
         type: Number,
