@@ -285,7 +285,27 @@ a h6:hover {
 	background: var(--tj-theme-primary);
 }
 .lead {
-	font-size: 15px;
+	font-size: 18px;
+	line-height: 1.7;
+	text-align: left;
+	color: var(--tj-body);
+	margin-bottom: 0;
+	word-wrap: break-word;
+	overflow-wrap: break-word;
+	white-space: pre-line;
+	text-align: justify;
+}
+.hero-content-box .lead {
+	text-align: justify;
+	line-height: 1.6;
+	margin-bottom: 30px;
+	text-justify: inter-word;
+}
+
+/* Ensure proper text flow */
+.hero-content-box p {
+    text-align: justify;
+    line-height: 1.6;
 }
 .social-icons {
 	display: -webkit-box;
@@ -993,9 +1013,16 @@ body.loaded {
 }
 
 .hero-content-box .lead {
-	max-width: 550px;
-	width: 100%;
-	margin-bottom: 0;
+	text-align: justify;
+	line-height: 1.6;
+	margin-bottom: 30px;
+	text-justify: inter-word;
+}
+
+/* Ensure proper text flow */
+.hero-content-box p {
+    text-align: justify;
+    line-height: 1.6;
 }
 .hero-content-box .button-box {
 	margin-top: 50px;
@@ -2557,6 +2584,7 @@ blockquote cite::before {
 }
 .tj-single__post ul li::before {
 	content: "\f058";
+
 	font-family: var(--tj-ff-fontawesome);
 	font-weight: var(--tj-fw-bold);
 	color: var(--tj-theme-primary);

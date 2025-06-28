@@ -982,3 +982,24 @@
 		opacity: 0.6;
 	}
 }
+
+/* Responsive bio text alignment */
+@media (max-width: 767px) {
+    .hero-content-box .lead {
+        text-align: left;
+        font-size: 14px;
+        line-height: 1.5;
+    }
+    
+    .hero-content-box p {
+        text-align: left;
+        font-size: 14px;
+    }
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+    .hero-content-box .lead {
+        font-size: 15px;
+        line-height: 1.6;
+    }
+}
